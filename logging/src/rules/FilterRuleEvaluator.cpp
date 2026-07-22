@@ -20,13 +20,12 @@ namespace Logging
 
     bool FilterRuleEvaluator::containsPath(const SourcePath& path_pattern, const SourcePath& path)
     {
-        return true;
-        // TODO bring this back
-        if (path_pattern.segments.size() != path.segments.size())
+        if (!path_pattern.is_wildcard && path_pattern.segments.size() != path.segments.size())
         {
             return false;
         }
 
+        // iterate over pattern, may stop earlier that the path, but then it is a wildcard so it is fine
         for (uint32_t i = 0; i < path_pattern.segments.size(); i++)
         {
             if (path_pattern.segments[i] != path.segments[i])

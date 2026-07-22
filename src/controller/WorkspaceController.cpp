@@ -3,8 +3,6 @@
 #include "util/MonitorUtil.hpp"
 #include "util/ShellUtil.hpp"
 #include <cassert>
-#include <iostream>
-#include <ostream>
 #include <stdexcept>
 #include <string>
 

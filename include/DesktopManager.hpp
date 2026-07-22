@@ -10,14 +10,23 @@
 #include "logging/include/logging/LogManager.hpp"
 #include "logging/logger/Logger.hpp"
 
+namespace foofoofoofoofoofoo
+{
+    namespace bar
+    {
+        struct Lol
+        {
+
+        };
+    }
+}
+
 class DesktopManager {
 public:
     explicit DesktopManager(bool dev_mode);
     ~DesktopManager() = default;
 
     void run();
-
-    void activateDevMode();
 private:
     template<std::derived_from<IController> T>
     void addController() {
@@ -26,11 +35,11 @@ private:
     }
     void initDesktopEnvironment();
 
-    Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<DesktopManager>();
+    Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<foofoofoofoofoofoo::bar::Lol>();
 
     std::string executeCommand(const std::string& cmd_string) const;
 
-    std::string socket_path = "";
+    std::string socket_path;
     std::unordered_map<std::string, std::shared_ptr<IController>> controllers;
 };
 

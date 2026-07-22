@@ -1,9 +1,11 @@
 #include <logging/logger/ClassLogger.hpp>
 
+#include <logging/util/SourcePathUtil.hpp>
+
 namespace Logging
 {
     ClassLogger::ClassLogger(const LogConfigurationHandle& config, const std::string& class_id)
-        : Logger(config), classpath(SourcePath(class_id))
+        : Logger(config), classpath(SourcePathUtil::parseFromClassId(class_id))
     {
     }
 
@@ -12,4 +14,5 @@ namespace Logging
         const auto message = std::make_shared<LogMessage>(classpath, severity, raw_message);
         publish(message);
     }
+
 } // Logging

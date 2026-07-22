@@ -11,7 +11,7 @@ public:
     {
         auto console_target = std::make_shared<Logging::ConsoleTarget>();
         auto log_config = Logging::LogConfigurationBuilder()
-            .addRule("", Logging::INFO, console_target)
+            .addRule("*", Logging::INFO, console_target)
             .addTarget(console_target).build();
         Logging::LogManager::setLogConfiguration(log_config);
     }
