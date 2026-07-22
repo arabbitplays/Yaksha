@@ -6,12 +6,20 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <sys/wait.h>
+#include <utility>
 class ShellUtil {
 public:
     ShellUtil() = default;
     ~ShellUtil() = default;
 
     static std::string executeShellCommand(const std::string& cmd) {
+        return executeShellCommandStatus(cmd).first;
+    }
+
+    // Returns {captured stdout+stderr chunk, exit status}. Exit status is -1
+    // when the command could not be launched or terminated abnormally.
+    static std::pair<std::string, int> executeShellCommandStatus(const std::string& cmd) {
         std::cout << "Executing shell command '" << cmd << "'" << std::endl;
 
         std::array<char, 255> buffer{};
@@ -19,20 +27,21 @@ public:
 
         FILE* pipe = popen(cmd.c_str(), "r");
         if (!pipe) {
-            return "";
+            return {"", -1};
         }
 
         while (fgets(buffer.data(), buffer.size(), pipe)) {
             result += buffer.data();
         }
 
-        pclose(pipe);
+        int raw = pclose(pipe);
+        int status = (raw != -1 && WIFEXITED(raw)) ? WEXITSTATUS(raw) : -1;
 
         if (!result.empty() && result.back() == '\n') {
             result.pop_back();
         }
 
-        return result;
+        return {result, status};
     }
 
     static void printShellOutput(const std::string& output) {

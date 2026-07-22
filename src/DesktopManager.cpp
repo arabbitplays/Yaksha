@@ -1,6 +1,7 @@
 
 #include "include/DesktopManager.hpp"
 #include "controller/IController.hpp"
+#include "controller/GitController.hpp"
 #include "controller/ThemeController.hpp"
 #include "controller/WorkspaceController.hpp"
 #include "io/CommandParser.hpp"
@@ -22,6 +23,7 @@ DesktopManager::DesktopManager(bool dev_mode) {
         : std::string(getenv("XDG_RUNTIME_DIR")) + "/desktop-manager/desktop-manager.sock"; 
     addController<ThemeController>();
     addController<WorkspaceController>();
+    addController<GitController>();
 
     if (!dev_mode) {
         initDesktopEnvironment();
