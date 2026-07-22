@@ -46,29 +46,36 @@ std::string WorkspaceController::execute(io::CommandHandle &cmd) {
 }
 
 void WorkspaceController::switchWorkspace(uint32_t target_virtual) const {
+    std::string focused_monitor = getActiveMonitorName();
+
+    std::string batch = "hyprctl --batch \"";
     for (uint32_t i = 0; i < monitor_names.size(); i++) {
-        ShellUtil::printShellOutput(ShellUtil::executeShellCommand("hyprctl dispatch workspace " + std::to_string(i + 1) + std::to_string(target_virtual)));
+        batch += "dispatch focusmonitor " + monitor_names[i] + " ; ";
+        batch += "dispatch workspace " + std::to_string(getWorkspaceId(i + 1, target_virtual)) + " ; ";
     }
+    batch += "dispatch focusmonitor " + focused_monitor + "\"";
+
+    ShellUtil::printShellOutput(ShellUtil::executeShellCommand(batch));
 }
 
 void WorkspaceController::sendWindow(uint32_t target_virtual) const {
     std::string active_window = getActiveWindowId();
     Workspace workspace = getCurrentWorkspace();
-    std::string result = ShellUtil::executeShellCommand("hyprctl dispatch movetoworkspacesilent " + std::to_string(workspace.physical_id) + std::to_string(target_virtual) + ",address:" + active_window);
+    std::string result = ShellUtil::executeShellCommand("hyprctl dispatch movetoworkspacesilent " + std::to_string(getWorkspaceId(workspace.physical_id, target_virtual)) + ",address:" + active_window);
     ShellUtil::printShellOutput(result);
 }
 
 void WorkspaceController::moveWindow(int32_t physical_delta) const {
     assert(physical_delta == -1 || physical_delta == 1);
-    std::string active_window = getActiveWindowId(); 
+    std::string active_window = getActiveWindowId();
     Workspace workspace = getCurrentWorkspace();
-    
+
     // monitors are 1 indexed
     int32_t physical_id = workspace.physical_id + physical_delta;
     physical_id = physical_id == 0 ? monitor_names.size() : physical_id;
-    physical_id = physical_id > monitor_names.size() ? 1 : physical_id;
+    physical_id = physical_id > static_cast<int32_t>(monitor_names.size()) ? 1 : physical_id;
 
-    ShellUtil::executeShellCommand("hyprctl dispatch movetoworkspace " + std::to_string(physical_id) + std::to_string(workspace.virtual_id) + ",address:" + active_window);
+    ShellUtil::executeShellCommand("hyprctl dispatch movetoworkspace " + std::to_string(getWorkspaceId(physical_id, workspace.virtual_id)) + ",address:" + active_window);
 }
 
 uint32_t WorkspaceController::getCurrentVirtualIndex() const {
@@ -83,4 +90,8 @@ WorkspaceController::Workspace WorkspaceController::getCurrentWorkspace() const 
 
 std::string WorkspaceController::getActiveWindowId() const {
     return ShellUtil::executeShellCommand("hyprctl activewindow -j | jq -r '.address'");
+}
+
+std::string WorkspaceController::getActiveMonitorName() const {
+    return ShellUtil::executeShellCommand("hyprctl activeworkspace -j | jq -r '.monitor'");
 }

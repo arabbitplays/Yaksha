@@ -24,6 +24,11 @@ private:
 
     Workspace getCurrentWorkspace() const;
     std::string getActiveWindowId() const;
+    std::string getActiveMonitorName() const;
+
+    static uint32_t getWorkspaceId(uint32_t physical, uint32_t virt) {
+        return physical * 10 + virt;
+    }
 
     std::vector<std::string> monitor_names;
 };
