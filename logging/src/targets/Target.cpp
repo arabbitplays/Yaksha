@@ -17,6 +17,11 @@ namespace Logging
 
     bool Target::appliesTo(const LogMessageHandle& message)
     {
+        if (rules.empty())
+        {
+            return true;
+        }
+
         for (const auto& rule : rules)
         {
             if (rule_evaluator.evaluate(message, rule))

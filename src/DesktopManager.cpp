@@ -18,7 +18,7 @@
 #include <util/MonitorUtil.hpp>
 
 DesktopManager::DesktopManager(bool dev_mode) {
-    socket_path = dev_mode 
+    socket_path = dev_mode
         ? "/tmp/desktop-manager-dev.sock"
         : std::string(getenv("XDG_RUNTIME_DIR")) + "/desktop-manager/desktop-manager.sock"; 
     addController<ThemeController>();
@@ -31,14 +31,13 @@ DesktopManager::DesktopManager(bool dev_mode) {
 }
 
 void DesktopManager::initDesktopEnvironment() {
-    std::cout << "Initialising Desktop Environment" << std::endl;
+    LOGGER->info("Initialising Desktop Environment");
     Startup startup([this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupWorkspaces();
     startup.setupTheme();
     startup.runDashboardTerminal();
-    std::cout << "Finished initialising Desktop Environment" << std::endl;
+    LOGGER->info("Finished initialising Desktop Environment");
 }
-
 
 void DesktopManager::run() {
     int server = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -59,7 +58,7 @@ void DesktopManager::run() {
         exit(1);
     }
 
-    std::cout << "Listening on socket " << socket_path << std::endl;
+    LOGGER->info("Listening on socket " + socket_path);
 
     while (true) {
         int client = accept(server, nullptr, nullptr);
@@ -69,17 +68,15 @@ void DesktopManager::run() {
             buf[n] = 0;
             std::string response = executeCommand(std::string(buf));
             write(client, response.c_str(), response.size());
-            std::cout << "Response:\n" << response << std::endl;
 
-            std::string separator(100, '-');
-            std::cout << separator << std::endl;
+            LOGGER->debug("Response:\n" + response);
         }
         close(client);
     }
 }
 
 std::string DesktopManager::executeCommand(const std::string& cmd_string) const {
-    std::cout << "Received command: " << cmd_string;
+    LOGGER->info("Received command: " + cmd_string);
 
     try {
         io::CommandParser parser;
@@ -91,7 +88,7 @@ std::string DesktopManager::executeCommand(const std::string& cmd_string) const 
         return controllers.at(cmd->keyword)->execute(cmd);
     } catch (const std::exception& e) {
         std::string msg = "Error while executing command: " + std::string(e.what());
-        std::cout << msg << std::endl;
+        // TODO why returning?
         return msg;
     }
 }

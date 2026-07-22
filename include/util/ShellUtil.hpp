@@ -8,6 +8,10 @@
 #include <string>
 #include <sys/wait.h>
 #include <utility>
+
+#include "logging/include/logging/LogManager.hpp"
+#include "logging/logger/Logger.hpp"
+
 class ShellUtil {
 public:
     ShellUtil() = default;
@@ -20,7 +24,8 @@ public:
     // Returns {captured stdout+stderr chunk, exit status}. Exit status is -1
     // when the command could not be launched or terminated abnormally.
     static std::pair<std::string, int> executeShellCommandStatus(const std::string& cmd) {
-        std::cout << "Executing shell command '" << cmd << "'" << std::endl;
+        Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<ShellUtil>();
+        LOGGER->debug("Executing shell command '" + cmd + "'");
 
         std::array<char, 255> buffer{};
         std::string result;
@@ -45,7 +50,8 @@ public:
     }
 
     static void printShellOutput(const std::string& output) {
-        std::cout << output << std::endl;
+        Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<ShellUtil>();
+        LOGGER->debug("Shell output: '" + output + "'");
     }
 
 

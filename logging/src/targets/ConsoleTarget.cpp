@@ -8,6 +8,6 @@ namespace Logging
 
     void ConsoleTarget::apply(const LogMessageHandle& message)
     {
-        std::cout << message << std::endl;
+        std::cout << std::format("[{}] {} - {}", message->severity, message->source_path.segments[0], message->message) << std::endl;
     }
 } // Logging

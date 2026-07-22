@@ -7,6 +7,9 @@
 #include <string>
 #include <unordered_map>
 
+#include "logging/include/logging/LogManager.hpp"
+#include "logging/logger/Logger.hpp"
+
 class DesktopManager {
 public:
     explicit DesktopManager(bool dev_mode);
@@ -22,6 +25,8 @@ private:
         controllers[controller->getKeyword()] = controller;
     }
     void initDesktopEnvironment();
+
+    Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<DesktopManager>();
 
     std::string executeCommand(const std::string& cmd_string) const;
 

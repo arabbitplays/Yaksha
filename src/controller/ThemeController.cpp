@@ -92,6 +92,5 @@ void ThemeController::setWaybarTheme(const std::string& name) {
 
     std::string output = ShellUtil::executeShellCommand("pkill waybar");
     std::system("waybar > /dev/null 2>&1 &");
-    std::cout << "Started a waybar" << std::endl;
     ShellUtil::printShellOutput(output);
 }

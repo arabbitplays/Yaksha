@@ -20,6 +20,8 @@ namespace Logging
 
     bool FilterRuleEvaluator::containsPath(const SourcePath& path_pattern, const SourcePath& path)
     {
+        return true;
+        // TODO bring this back
         if (path_pattern.segments.size() != path.segments.size())
         {
             return false;
