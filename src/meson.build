@@ -2,6 +2,7 @@
 
 subdir('controller')
 subdir('io')
+subdir('startup')
 
 src += files(
   'main.cpp',

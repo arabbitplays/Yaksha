@@ -4,6 +4,7 @@
 #include "controller/ThemeController.hpp"
 #include "controller/WorkspaceController.hpp"
 #include "io/CommandParser.hpp"
+#include "startup/Startup.hpp"
 #include <cmath>
 #include <concepts>
 #include <memory>
@@ -25,12 +26,17 @@ DesktopManager::DesktopManager(bool dev_mode) {
     if (!dev_mode) {
         initDesktopEnvironment();
     }
+
+    Startup startup([this](const std::string& cmd) { return executeCommand(cmd); });
+    startup.runDashboardTerminal();
 }
 
 void DesktopManager::initDesktopEnvironment() {
     std::cout << "Initialising Desktop Environment" << std::endl;
-    executeCommand("workspace switch 1\n");
-    executeCommand("theme tokyo\n");
+    Startup startup([this](const std::string& cmd) { return executeCommand(cmd); });
+    startup.setupWorkspaces();
+    startup.setupTheme();
+    startup.runDashboardTerminal();
     std::cout << "Finished initialising Desktop Environment" << std::endl;
 }
 
