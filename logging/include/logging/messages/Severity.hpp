@@ -24,6 +24,8 @@ namespace Logging
         "CRITICAL"
     };
 
+    inline const uint32_t MAX_SEVERITY_STRING_LENGTH = 8;
+
     inline std::string_view severityToString(Severity severity)
     {
         return severityNames[severity];
@@ -40,7 +42,13 @@ struct std::formatter<Logging::Severity>
 
     auto format(Logging::Severity s, format_context& ctx) const
     {
-        return std::format_to(ctx.out(), "{}", severityToString(s));
+        std::string_view severity_string = severityToString(s);
+        std::string padding = "";
+        for (uint32_t i = 0; i < Logging::MAX_SEVERITY_STRING_LENGTH - severity_string.size(); ++i)
+        {
+            padding += " ";
+        }
+        return std::format_to(ctx.out(), "[{}]{}", severity_string, padding);
     }
 };
 

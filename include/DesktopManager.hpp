@@ -10,17 +10,6 @@
 #include "logging/include/logging/LogManager.hpp"
 #include "logging/logger/Logger.hpp"
 
-namespace foofoofoofoofoofoo
-{
-    namespace bar
-    {
-        struct Lol
-        {
-
-        };
-    }
-}
-
 class DesktopManager {
 public:
     explicit DesktopManager(bool dev_mode);
@@ -35,7 +24,7 @@ private:
     }
     void initDesktopEnvironment();
 
-    Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<foofoofoofoofoofoo::bar::Lol>();
+    Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<DesktopManager>();
 
     std::string executeCommand(const std::string& cmd_string) const;
 
