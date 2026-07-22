@@ -28,9 +28,6 @@ DesktopManager::DesktopManager(bool dev_mode) {
     if (!dev_mode) {
         initDesktopEnvironment();
     }
-
-    Startup startup([this](const std::string& cmd) { return executeCommand(cmd); });
-    startup.runDashboardTerminal();
 }
 
 void DesktopManager::initDesktopEnvironment() {
