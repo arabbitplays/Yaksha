@@ -74,18 +74,19 @@ void DesktopManager::run() {
 }
 
 std::string DesktopManager::executeCommand(const std::string& cmd_string) const {
-    io::CommandParser parser;
-    io::CommandHandle cmd = parser.parseCommand(cmd_string);
     std::cout << "Received command: " << cmd_string;
 
-    if (!controllers.contains(cmd->keyword))
-        return "Error: Controller with keyword " + cmd->keyword + " does not exist";
-
-    std::string response = "";
     try {
-        response = controllers.at(cmd->keyword)->execute(cmd);
+        io::CommandParser parser;
+        io::CommandHandle cmd = parser.parseCommand(cmd_string);
+
+        if (!controllers.contains(cmd->keyword))
+            return "Error: Controller with keyword " + cmd->keyword + " does not exist";
+
+        return controllers.at(cmd->keyword)->execute(cmd);
     } catch (const std::exception& e) {
-        response = "Error while executing command: " + std::string(e.what());
+        std::string msg = "Error while executing command: " + std::string(e.what());
+        std::cout << msg << std::endl;
+        return msg;
     }
-    return response;
 }

@@ -27,7 +27,9 @@ namespace io {
     std::shared_ptr<Command> CommandParser::parseCommand(const std::string& raw) {
         auto cmd = std::make_shared<Command>();
         std::vector<std::string> parts = splitAt(raw, ' ');
-        assert(parts.size() > 0);
+        if (parts.empty()) {
+            throw std::runtime_error("Empty command");
+        }
         cmd->keyword = parts.front();
         cmd->args.assign(parts.begin() + 1, parts.end());
         return cmd;
