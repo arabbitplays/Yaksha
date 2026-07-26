@@ -1,0 +1,5 @@
+[wrap-git]
+directory = logging
+url = https://github.com/arabbitplays/Logging-Library.git
+revision = main
+depth = 1

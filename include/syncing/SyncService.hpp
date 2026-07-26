@@ -3,11 +3,9 @@
 #include <vector>
 
 #include "core/ShellActuator.hpp"
-#include "logging/include/logging/LogManager.hpp"
-#include "logging/logger/Logger.hpp"
+#include <logging/LogManager.hpp>
 #include "model/GitRepository.hpp"
 #include "model/GitSyncResult.hpp"
-
 
 class SyncService
 {

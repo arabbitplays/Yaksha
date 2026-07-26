@@ -1,7 +1,7 @@
 #ifndef DESKTOP_MANAGER_LOGGINGCONFIGURATION_HPP
 #define DESKTOP_MANAGER_LOGGINGCONFIGURATION_HPP
 #include "logging/configuration/LogConfigurationBuilder.hpp"
-#include "logging/include/logging/LogManager.hpp"
+#include <logging/LogManager.hpp>
 #include "logging/targets/ConsoleTarget.hpp"
 
 class LoggingConfiguration

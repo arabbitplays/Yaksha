@@ -3,7 +3,7 @@
 #include <string>
 
 #include "ShellResult.hpp"
-#include "logging/include/logging/LogManager.hpp"
+#include <logging/LogManager.hpp>
 #include "logging/logger/Logger.hpp"
 
 

@@ -8,7 +8,7 @@
 
 #include "core/IController.hpp"
 #include "core/ShellActuator.hpp"
-#include "logging/include/logging/LogManager.hpp"
+#include <logging/LogManager.hpp>
 #include "logging/logger/Logger.hpp"
 
 class DesktopManager {
