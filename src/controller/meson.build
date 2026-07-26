@@ -3,5 +3,4 @@
 
 src += files(
   'GitController.cpp',
-  'WorkspaceController.cpp',
 )

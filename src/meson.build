@@ -5,6 +5,7 @@ subdir('theming')
 subdir('core')
 subdir('io')
 subdir('startup')
+subdir('workspaces')
 
 src += files(
   'main.cpp',
