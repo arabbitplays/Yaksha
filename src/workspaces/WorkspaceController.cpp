@@ -1,8 +1,6 @@
 #include "../../include/workspaces/WorkspaceController.hpp"
 #include "io/CommandParser.hpp"
 #include "util/MonitorUtil.hpp"
-#include "util/ShellUtil.hpp"
-#include <cassert>
 #include <stdexcept>
 #include <string>
 

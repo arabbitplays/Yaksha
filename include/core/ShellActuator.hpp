@@ -13,6 +13,7 @@ public:
     ShellActuator() = default;
     ~ShellActuator() = default;
 
+    ShellResult executeShellCommandRaw(const std::string& cmd) const;
     ShellResult executeShellCommand(const std::string& cmd) const;
     int32_t executeShellCommandSilent(const std::string& cmd) const;
     void printShellOutput(const std::string& output) const;

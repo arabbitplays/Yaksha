@@ -2,6 +2,7 @@
 
 subdir('controller')
 subdir('theming')
+subdir('syncing')
 subdir('core')
 subdir('io')
 subdir('startup')

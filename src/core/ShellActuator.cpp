@@ -3,6 +3,13 @@
 #include "core/ShellResult.hpp"
 #include "logging/logger/Logger.hpp"
 
+ShellResult ShellActuator::executeShellCommandRaw(const std::string& cmd) const
+{
+    auto result = executeShellCommandStatus(cmd);
+    logger->trace("Status " + std::to_string(result.second) + " - " + result.first);
+    return {result.first, result.second};
+}
+
 ShellResult ShellActuator::executeShellCommand(const std::string& cmd) const
 {
     // redirect stderr into stdout

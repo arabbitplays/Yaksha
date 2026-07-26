@@ -1,7 +1,7 @@
 
 #include "include/DesktopManager.hpp"
 #include "../include/core/IController.hpp"
-#include "controller/GitController.hpp"
+#include "../include/syncing/SyncController.hpp"
 #include "../include/theming/ThemeController.hpp"
 #include "../include/workspaces/WorkspaceController.hpp"
 #include "io/CommandParser.hpp"
@@ -23,7 +23,7 @@ DesktopManager::DesktopManager(bool dev_mode) {
         : std::string(getenv("XDG_RUNTIME_DIR")) + "/desktop-manager/desktop-manager.sock"; 
     addController<ThemeController>();
     addController<WorkspaceController>();
-    addController<GitController>();
+    addController<SyncController>();
 
     if (!dev_mode) {
         initDesktopEnvironment();
@@ -32,7 +32,7 @@ DesktopManager::DesktopManager(bool dev_mode) {
 
 void DesktopManager::initDesktopEnvironment() {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup([this](const std::string& cmd) { return executeCommand(cmd); });
+    Startup startup(std::make_shared<ShellActuator>(), [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupWorkspaces();
     startup.setupTheme();
     startup.runDashboardTerminal();

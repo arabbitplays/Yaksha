@@ -52,7 +52,7 @@ void ThemeService::setKittyTheme(const std::string& name) const
 {
     std::string src = std::string(KITTY_THEME_DIR) + "/" + name;
     std::string dst = std::string(KITTY_THEME_FILE);
-    FileUtil::copyFile(src, dst);
+    FileUtil::copyFile(shell_actuator, src, dst);
     shell_actuator->executeShellCommand("kill -USR1 $(pidof kitty)");
 }
 
@@ -64,7 +64,7 @@ void ThemeService::setHyprTheme(const std::string& name) const
 {
     std::string src = std::string(HYPR_THEME_DIR) + "/" + name;
     std::string dst = std::string(HYPR_THEME_FILE);
-    FileUtil::copyFile(src, dst);
+    FileUtil::copyFile(shell_actuator, src, dst);
     shell_actuator->executeShellCommand("hyprctl reload");
 }
 
@@ -72,7 +72,7 @@ void ThemeService::setWaybarTheme(const std::string& name) const
 {
     std::string src = std::string(WAYBAR_THEME_DIR) + "/" + name;
     std::string dst = std::string(WAYBAR_THEME_FILE);
-    FileUtil::copyFile(src, dst);
+    FileUtil::copyFile(shell_actuator, src, dst);
 
     shell_actuator->executeShellCommand("pkill waybar");
     std::system("waybar > /dev/null 2>&1 &"); // TODO is this needed outside of the shell actuator?

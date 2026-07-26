@@ -2,5 +2,4 @@
 
 
 src += files(
-  'GitController.cpp',
 )
