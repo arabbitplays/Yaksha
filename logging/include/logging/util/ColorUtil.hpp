@@ -1,5 +1,6 @@
 #ifndef DESKTOP_MANAGER_COLORUTIL_HPP
 #define DESKTOP_MANAGER_COLORUTIL_HPP
+#include <regex>
 #include <string>
 
 namespace Logging
@@ -44,6 +45,12 @@ namespace Logging
         static std::string getColorResetCode()
         {
             return "\033[0m";
+        }
+
+        static std::string stripAnsiCodes(const std::string& data)
+        {
+            static const std::regex ansi_pattern("\x1b\\[[0-9;]*[a-zA-Z]");
+            return std::regex_replace(data, ansi_pattern, "");
         }
     };
 }
