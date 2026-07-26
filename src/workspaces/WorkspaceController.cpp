@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <string>
 
-WorkspaceController::WorkspaceController() {
-    workspace_service = std::make_shared<WorkspaceService>(std::make_shared<ShellActuator>());
+WorkspaceController::WorkspaceController(const ShellActuatorHandle& shell_actuator) {
+    workspace_service = std::make_shared<WorkspaceService>(shell_actuator);
 }
 
 std::string WorkspaceController::getKeyword() const {

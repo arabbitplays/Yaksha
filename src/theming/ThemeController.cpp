@@ -7,8 +7,8 @@
 
 namespace fs = std::filesystem;
 
-ThemeController::ThemeController() {
-    theme_service = std::make_shared<ThemeService>(std::make_shared<ShellActuator>());
+ThemeController::ThemeController(const ShellActuatorHandle& shell_actuator) {
+    theme_service = std::make_shared<ThemeService>(shell_actuator);
 }
 
 std::string ThemeController::getKeyword() const {

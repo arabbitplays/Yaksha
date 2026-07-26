@@ -3,10 +3,11 @@
 
 #include "SyncService.hpp"
 #include "../core/IController.hpp"
+#include "../core/ShellActuator.hpp"
 
 class SyncController : public IController {
 public:
-    SyncController();
+    explicit SyncController(const ShellActuatorHandle& shell_actuator);
     ~SyncController() override = default;
 
     std::string getKeyword() const override;

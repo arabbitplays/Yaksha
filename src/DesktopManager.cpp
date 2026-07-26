@@ -32,7 +32,7 @@ DesktopManager::DesktopManager(bool dev_mode) {
 
 void DesktopManager::initDesktopEnvironment() {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup(std::make_shared<ShellActuator>(), [this](const std::string& cmd) { return executeCommand(cmd); });
+    Startup startup(shell_actuator, [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupWorkspaces();
     startup.setupTheme();
     startup.runDashboardTerminal();

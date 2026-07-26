@@ -6,11 +6,12 @@
 
 #include "ThemeService.hpp"
 #include "core/IController.hpp"
+#include "core/ShellActuator.hpp"
 
 class ThemeController : public IController {
 public:
 
-    ThemeController();
+    explicit ThemeController(const ShellActuatorHandle& shell_actuator);
     ~ThemeController() override = default;
 
     [[nodiscard]] std::string getKeyword() const override;

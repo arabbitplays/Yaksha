@@ -3,9 +3,9 @@
 #include <sstream>
 #include <stdexcept>
 
-SyncController::SyncController()
+SyncController::SyncController(const ShellActuatorHandle& shell_actuator)
 {
-    sync_service = std::make_shared<SyncService>(std::make_shared<ShellActuator>());
+    sync_service = std::make_shared<SyncService>(shell_actuator);
 }
 
 std::string SyncController::getKeyword() const {

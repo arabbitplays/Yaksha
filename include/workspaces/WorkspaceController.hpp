@@ -2,12 +2,13 @@
 #define WORKSPACE_CONTROLLER
 
 #include "../core/IController.hpp"
+#include "../core/ShellActuator.hpp"
 
 #include "WorkspaceService.hpp"
 
 class WorkspaceController : public IController {
 public:
-    WorkspaceController();
+    explicit WorkspaceController(const ShellActuatorHandle& shell_actuator);
     ~WorkspaceController() override = default;
 
     [[nodiscard]] std::string getKeyword() const override;
