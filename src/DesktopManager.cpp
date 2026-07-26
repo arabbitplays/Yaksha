@@ -10,6 +10,8 @@
 #include <concepts>
 #include <memory>
 
+#include <cerrno>
+#include <cstring>
 #include <ostream>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -67,7 +69,20 @@ void DesktopManager::run() {
         if (n > 0) {
             buf[n] = 0;
             std::string response = executeCommand(std::string(buf));
-            write(client, response.c_str(), response.size());
+
+            const char* data = response.c_str();
+            size_t remaining = response.size();
+            while (remaining > 0) {
+                ssize_t written = write(client, data, remaining);
+                if (written < 0) {
+                    if (errno == EINTR) continue;
+                    LOGGER->error("write failed: " + std::string(strerror(errno)));
+                    break;
+                }
+                data += written;
+                remaining -= written;
+            }
+            shutdown(client, SHUT_WR);
 
             LOGGER->debug("Response:\n" + response);
         }
