@@ -39,42 +39,41 @@ void ThemeService::setTheme(const std::string& theme_name)
     }
 }
 
-void ThemeService::setWallpaperAll(const std::string& name) {
-    std::string output = shell_actuator->executeShellCommand("swww img " + std::string(WALLPAPER_DIR) + "/" + name + " " + std::string(SWWW_OPTIONS));
-    shell_actuator->printShellOutput(output);
+void ThemeService::setWallpaperAll(const std::string& name) const
+{
+    shell_actuator->executeShellCommand("swww img " + std::string(WALLPAPER_DIR) + "/" + name + " " + std::string(SWWW_OPTIONS));
 }
 
 void ThemeService::setWallpaper(const std::string& name, const std::string& monitor_name) const {
-    std::string output = shell_actuator->executeShellCommand("swww img " + std::string(WALLPAPER_DIR) + "/" + name + " " + std::string (SWWW_OPTIONS) + " -o " + monitor_name);
-    shell_actuator->printShellOutput(output);
+    shell_actuator->executeShellCommand("swww img " + std::string(WALLPAPER_DIR) + "/" + name + " " + std::string (SWWW_OPTIONS) + " -o " + monitor_name);
 }
 
-void ThemeService::setKittyTheme(const std::string& name) {
+void ThemeService::setKittyTheme(const std::string& name) const
+{
     std::string src = std::string(KITTY_THEME_DIR) + "/" + name;
     std::string dst = std::string(KITTY_THEME_FILE);
     FileUtil::copyFile(src, dst);
-    std::string output = shell_actuator->executeShellCommand("kill -USR1 $(pidof kitty)");
-    shell_actuator->printShellOutput(output);
+    shell_actuator->executeShellCommand("kill -USR1 $(pidof kitty)");
 }
 
 void ThemeService::setNvimTheme(const std::string& name) {
     FileUtil::overwriteFile(std::string(NVIM_THEME_FILE), name);
 }
 
-void ThemeService::setHyprTheme(const std::string& name) {
+void ThemeService::setHyprTheme(const std::string& name) const
+{
     std::string src = std::string(HYPR_THEME_DIR) + "/" + name;
     std::string dst = std::string(HYPR_THEME_FILE);
     FileUtil::copyFile(src, dst);
-    std::string output = shell_actuator->executeShellCommand("hyprctl reload");
-    shell_actuator->printShellOutput(output);
+    shell_actuator->executeShellCommand("hyprctl reload");
 }
 
-void ThemeService::setWaybarTheme(const std::string& name) {
+void ThemeService::setWaybarTheme(const std::string& name) const
+{
     std::string src = std::string(WAYBAR_THEME_DIR) + "/" + name;
     std::string dst = std::string(WAYBAR_THEME_FILE);
     FileUtil::copyFile(src, dst);
 
-    std::string output = shell_actuator->executeShellCommand("pkill waybar");
-    std::system("waybar > /dev/null 2>&1 &");
-    shell_actuator->printShellOutput(output);
+    shell_actuator->executeShellCommand("pkill waybar");
+    std::system("waybar > /dev/null 2>&1 &"); // TODO is this needed outside of the shell actuator?
 }

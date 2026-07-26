@@ -1,14 +1,23 @@
 #include "include/core/ShellActuator.hpp"
 
+#include "core/ShellResult.hpp"
 #include "logging/logger/Logger.hpp"
 
-std::string ShellActuator::executeShellCommand(const std::string& cmd) const
+ShellResult ShellActuator::executeShellCommand(const std::string& cmd) const
 {
-    return executeShellCommandStatus(cmd).first;
+    // redirect stderr into stdout
+    auto result = executeShellCommandStatus(cmd + " 2>&1");
+    logger->trace("Status " + std::to_string(result.second) + " - " + result.first);
+    return {result.first, result.second};
 }
 
-// Returns {captured stdout+stderr chunk, exit status}. Exit status is -1
-// when the command could not be launched or terminated abnormally.
+int32_t ShellActuator::executeShellCommandSilent(const std::string& cmd) const
+{
+    auto result = executeShellCommandStatus(cmd + " &>/dev/null 2>&1");
+    logger->trace("Status: " + std::to_string(result.second));
+    return result.second;
+}
+
 std::pair<std::string, int> ShellActuator::executeShellCommandStatus(const std::string& cmd) const
 {
     logger->debug("Executing shell command '" + cmd + "'");
@@ -36,9 +45,4 @@ std::pair<std::string, int> ShellActuator::executeShellCommandStatus(const std::
     }
 
     return {result, status};
-}
-
-void ShellActuator::printShellOutput(const std::string& output) const
-{
-    logger->debug("Shell output: '" + output + "'");
 }

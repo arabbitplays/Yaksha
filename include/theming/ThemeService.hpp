@@ -15,12 +15,12 @@ public:
 
     void setTheme(const std::string& theme_name);
 private:
-    void setWallpaperAll(const std::string& name);
+    void setWallpaperAll(const std::string& name) const;
     void setWallpaper(const std::string& name, const std::string& monitor_name) const;
-    void setKittyTheme(const std::string& name);
+    void setKittyTheme(const std::string& name) const;
     void setNvimTheme(const std::string& name);
-    void setHyprTheme(const std::string& name);
-    void setWaybarTheme(const std::string& name);
+    void setHyprTheme(const std::string& name) const;
+    void setWaybarTheme(const std::string& name) const;
 
     static constexpr char* WALLPAPER_DIR = "~/Resources/Wallpapers";
     static constexpr char* KITTY_THEME_FILE = "~/.config/kitty/current-theme.conf";

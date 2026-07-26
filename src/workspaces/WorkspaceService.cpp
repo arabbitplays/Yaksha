@@ -18,15 +18,14 @@ void WorkspaceService::switchWorkspace(uint32_t target_virtual) const {
     }
     batch += "dispatch focusmonitor " + monitor_names[active_workspace.physical_id] + "\"";
 
-    shell_actuator->printShellOutput(shell_actuator->executeShellCommand(batch));
+    shell_actuator->executeShellCommand(batch);
 }
 
 void WorkspaceService::sendWindow(const uint32_t target_virtual) const {
     std::string active_window = getActiveWindowId();
     Workspace workspace = getActiveWorkspace();
     uint32_t hyprland_id = toHyprlandId({workspace.physical_id, target_virtual});
-    std::string result = shell_actuator->executeShellCommand("hyprctl dispatch movetoworkspacesilent " + std::to_string(hyprland_id) + ",address:" + active_window);
-    shell_actuator->printShellOutput(result);
+    shell_actuator->executeShellCommand("hyprctl dispatch movetoworkspacesilent " + std::to_string(hyprland_id) + ",address:" + active_window);
 }
 
 void WorkspaceService::moveWindow(WindowMovement movement) const {
@@ -56,13 +55,13 @@ void WorkspaceService::moveWindow(WindowMovement movement) const {
 }
 
 Workspace WorkspaceService::getActiveWorkspace() const {
-    std::string active_workspace_string = shell_actuator->executeShellCommand("hyprctl activeworkspace -j | jq -r '.id'");
+    std::string active_workspace_string = shell_actuator->executeShellCommand("hyprctl activeworkspace -j | jq -r '.id'").response;
     uint32_t hyprland_id = std::stoi(active_workspace_string);
     return fromHyprlandId(hyprland_id);
 }
 
 std::string WorkspaceService::getActiveWindowId() const {
-    return shell_actuator->executeShellCommand("hyprctl activewindow -j | jq -r '.address'");
+    return shell_actuator->executeShellCommand("hyprctl activewindow -j | jq -r '.address'").response;
 }
 
 Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) {
