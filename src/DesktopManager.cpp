@@ -1,15 +1,17 @@
 
 #include "include/DesktopManager.hpp"
-#include "controller/IController.hpp"
-#include "controller/GitController.hpp"
-#include "controller/ThemeController.hpp"
-#include "controller/WorkspaceController.hpp"
+#include "../include/core/IController.hpp"
+#include "../include/syncing/SyncController.hpp"
+#include "../include/theming/ThemeController.hpp"
+#include "../include/workspaces/WorkspaceController.hpp"
 #include "io/CommandParser.hpp"
 #include "startup/Startup.hpp"
 #include <cmath>
 #include <concepts>
 #include <memory>
 
+#include <cerrno>
+#include <cstring>
 #include <ostream>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -23,7 +25,7 @@ DesktopManager::DesktopManager(bool dev_mode) {
         : std::string(getenv("XDG_RUNTIME_DIR")) + "/desktop-manager/desktop-manager.sock"; 
     addController<ThemeController>();
     addController<WorkspaceController>();
-    addController<GitController>();
+    addController<SyncController>();
 
     if (!dev_mode) {
         initDesktopEnvironment();
@@ -32,7 +34,7 @@ DesktopManager::DesktopManager(bool dev_mode) {
 
 void DesktopManager::initDesktopEnvironment() {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup([this](const std::string& cmd) { return executeCommand(cmd); });
+    Startup startup(shell_actuator, [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupWorkspaces();
     startup.setupTheme();
     startup.runDashboardTerminal();
@@ -67,7 +69,20 @@ void DesktopManager::run() {
         if (n > 0) {
             buf[n] = 0;
             std::string response = executeCommand(std::string(buf));
-            write(client, response.c_str(), response.size());
+
+            const char* data = response.c_str();
+            size_t remaining = response.size();
+            while (remaining > 0) {
+                ssize_t written = write(client, data, remaining);
+                if (written < 0) {
+                    if (errno == EINTR) continue;
+                    LOGGER->error("write failed: " + std::string(strerror(errno)));
+                    break;
+                }
+                data += written;
+                remaining -= written;
+            }
+            shutdown(client, SHUT_WR);
 
             LOGGER->debug("Response:\n" + response);
         }

@@ -6,10 +6,10 @@
 class IController {
 public:
     IController() = default;
-    ~IController() = default;
+    virtual ~IController() = default;
 
     virtual std::string execute(io::CommandHandle& cmd) = 0;
-    virtual std::string getKeyword() const = 0;
+    [[nodiscard]] virtual std::string getKeyword() const = 0;
 private:
 };
 

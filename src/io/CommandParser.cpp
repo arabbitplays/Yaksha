@@ -1,11 +1,6 @@
 #include "include/io/CommandParser.hpp"
-#include "util/ShellUtil.hpp"
-#include <charconv>
 #include <exception>
-#include <iostream>
-#include <cassert>
 #include <stdexcept>
-#include <system_error>
 
 namespace io {
     std::vector<std::string> splitAt(const std::string& input, char sep) {
@@ -37,7 +32,7 @@ namespace io {
 
     int32_t CommandParser::parseIntArg(const std::string& arg) {
         try {
-            return ShellUtil::parseStringToInt(arg);
+            return std::stoi(arg);
         } catch (std::exception& e) {
             throw std::runtime_error("Argument is not a valid integer!");
         }

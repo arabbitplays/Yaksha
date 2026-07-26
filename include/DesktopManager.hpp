@@ -3,11 +3,12 @@
 
 #include <concepts>
 #include <memory>
-#include <controller/IController.hpp>
 #include <string>
 #include <unordered_map>
 
-#include "logging/include/logging/LogManager.hpp"
+#include "core/IController.hpp"
+#include "core/ShellActuator.hpp"
+#include <logging/LogManager.hpp>
 #include "logging/logger/Logger.hpp"
 
 class DesktopManager {
@@ -19,7 +20,7 @@ public:
 private:
     template<std::derived_from<IController> T>
     void addController() {
-        std::shared_ptr<IController> controller = std::make_shared<T>();
+        std::shared_ptr<IController> controller = std::make_shared<T>(shell_actuator);
         controllers[controller->getKeyword()] = controller;
     }
     void initDesktopEnvironment();
@@ -28,6 +29,7 @@ private:
 
     std::string executeCommand(const std::string& cmd_string) const;
 
+    ShellActuatorHandle shell_actuator = std::make_shared<ShellActuator>();
     std::string socket_path;
     std::unordered_map<std::string, std::shared_ptr<IController>> controllers;
 };

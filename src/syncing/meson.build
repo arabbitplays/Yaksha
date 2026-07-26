@@ -2,7 +2,6 @@
 
 
 src += files(
-  'GitController.cpp',
-  'ThemeController.cpp',
-  'WorkspaceController.cpp',
+  'SyncService.cpp',
+  'SyncController.cpp',
 )

@@ -1,7 +1,6 @@
 #ifndef FILE_UTIL
 #define FILE_UTIL
 
-#include "util/ShellUtil.hpp"
 #include <fstream>
 
 class FileUtil {
@@ -9,8 +8,8 @@ public:
     FileUtil() = default;
     ~FileUtil() = default;
 
-    static void copyFile(const std::string& src_path, const std::string& dst_path) {
-        ShellUtil::executeShellCommand("cp " + src_path + " " + dst_path);
+    static void copyFile(ShellActuatorHandle shell_actuator, const std::string& src_path, const std::string& dst_path) {
+        shell_actuator->executeShellCommand("cp " + src_path + " " + dst_path);
     }
 
     static std::string expandHome(const std::string& path) {
@@ -33,7 +32,6 @@ public:
         file << content;
         file.close();
     }
-private:
 };
 
 #endif // FILE_UTIL

@@ -4,11 +4,13 @@
 #include <functional>
 #include <string>
 
+#include "core/ShellActuator.hpp"
+
 class Startup {
 public:
     using CommandExecutor = std::function<std::string(const std::string&)>;
 
-    explicit Startup(CommandExecutor executor);
+    explicit Startup(ShellActuatorHandle shell_actuator, CommandExecutor executor);
     ~Startup() = default;
 
     void setupWorkspaces();
@@ -16,6 +18,7 @@ public:
     void runDashboardTerminal();
 
 private:
+    ShellActuatorHandle shell_actuator;
     CommandExecutor execute;
 };
 
