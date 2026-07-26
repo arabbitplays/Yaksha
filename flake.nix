@@ -52,20 +52,6 @@
             ninja
             pkg-config
           ];
-
-          buildInputs = with pkgs; [
-            python3
-          ];
-
-          # buildPhase = ''
-          #   meson setup build --prefix=$out
-          #   meson compile -C build
-          # '';
-
-          installPhase = ''
-            mkdir -p $out/bin
-            cp DesktopManager $out/bin/DesktopManager
-          '';
         };
       }
     );

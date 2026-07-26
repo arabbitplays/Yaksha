@@ -2,4 +2,6 @@
 
 
 src += files(
+  'SyncService.cpp',
+  'SyncController.cpp',
 )
