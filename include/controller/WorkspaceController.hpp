@@ -1,7 +1,7 @@
 #ifndef WORKSPACE_CONTROLLER
 #define WORKSPACE_CONTROLLER
 
-#include "controller/IController.hpp"
+#include "../core/IController.hpp"
 #include <cstdint>
 class WorkspaceController : public IController {
 public:

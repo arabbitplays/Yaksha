@@ -1,7 +1,7 @@
 #ifndef GIT_CONTROLLER
 #define GIT_CONTROLLER
 
-#include "controller/IController.hpp"
+#include "../core/IController.hpp"
 
 class GitController : public IController {
 public:

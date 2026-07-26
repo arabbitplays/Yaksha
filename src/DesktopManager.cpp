@@ -1,8 +1,8 @@
 
 #include "include/DesktopManager.hpp"
-#include "controller/IController.hpp"
+#include "../include/core/IController.hpp"
 #include "controller/GitController.hpp"
-#include "controller/ThemeController.hpp"
+#include "../include/theming/ThemeController.hpp"
 #include "controller/WorkspaceController.hpp"
 #include "io/CommandParser.hpp"
 #include "startup/Startup.hpp"
