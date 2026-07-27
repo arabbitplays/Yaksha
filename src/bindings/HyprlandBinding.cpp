@@ -38,7 +38,7 @@ void HyprlandBinding::focusAndOpenWorkspaces(
     std::string batch = "hyprctl --batch \"";
     for (size_t i = 0; i < focuses.size(); ++i) {
         batch += "dispatch focusmonitor " + focuses[i].monitor_name + " ; ";
-        batch += "dispatch workspace " + std::to_string(focuses[i].hyprland_workspace_id);
+        batch += "dispatch focusworkspaceoncurrentmonitor " + std::to_string(focuses[i].hyprland_workspace_id);
         const bool needs_separator = (i + 1 < focuses.size()) || final_focus_monitor.has_value();
         if (needs_separator) {
             batch += " ; ";
