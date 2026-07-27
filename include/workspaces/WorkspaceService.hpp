@@ -18,7 +18,7 @@ public:
 private:
     std::string getActiveWindowId() const;
 
-    static Workspace fromHyprlandId(uint32_t hyprland_id);
+    Workspace fromHyprlandId(uint32_t hyprland_id) const;
     static uint32_t toHyprlandId(const Workspace& workspace);
 
     ShellActuatorHandle shell_actuator;

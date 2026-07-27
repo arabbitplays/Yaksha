@@ -11,10 +11,10 @@ WorkspaceService::WorkspaceService(const ShellActuatorHandle& shell_actuator) : 
 void WorkspaceService::initWorkspaces() const {
     std::string batch = "hyprctl --batch \"";
     for (uint32_t i = 0; i < monitor_names.size(); i++) {
-        batch += "dispatch focusmonitor " + monitor_names[i] + " ; ";
+        batch += "dispatch focusmonitor " + monitor_names.at(i) + " ; ";
         batch += "dispatch workspace " + std::to_string(toHyprlandId({i, 0})) + " ; ";
     }
-    batch += "dispatch focusmonitor " + monitor_names[0] + "\"";
+    batch += "dispatch focusmonitor " + monitor_names.at(0) + "\"";
 
     shell_actuator->executeShellCommand(batch);
 }
@@ -24,7 +24,7 @@ void WorkspaceService::switchWorkspace(uint32_t target_virtual) const {
 
     std::string batch = "hyprctl --batch \"";
     for (uint32_t i = 0; i < monitor_names.size(); i++) {
-        batch += "dispatch focusmonitor " + monitor_names[i] + " ; ";
+        batch += "dispatch focusmonitor " + monitor_names.at(i) + " ; ";
         batch += "dispatch workspace " + std::to_string(toHyprlandId({i, target_virtual})) + " ; ";
     }
     batch += "dispatch focusmonitor " + monitor_names[active_workspace.physical_id] + "\"";
@@ -75,8 +75,10 @@ std::string WorkspaceService::getActiveWindowId() const {
     return shell_actuator->executeShellCommand("hyprctl activewindow -j | jq -r '.address'").response;
 }
 
-Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) {
-    return {hyprland_id / 10 - 1, hyprland_id % 10 - 1};
+Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) const {
+    Workspace workspace = {hyprland_id / 10 - 1, hyprland_id % 10 - 1};
+    assert(workspace.physical_id < monitor_names.size());
+    return workspace;
 }
 
 uint32_t WorkspaceService::toHyprlandId(const Workspace& workspace) {

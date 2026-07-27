@@ -1,5 +1,5 @@
-#ifndef YAKSHA_SOCKETLISTENER_H
-#define YAKSHA_SOCKETLISTENER_H
+#ifndef YAKSHA_SOCKETSERVER_H
+#define YAKSHA_SOCKETSERVER_H
 #include <string>
 
 #include "logging/LogManager.hpp"
@@ -25,4 +25,4 @@ private:
 };
 
 
-#endif //YAKSHA_SOCKETLISTENER_H
+#endif //YAKSHA_SOCKETSERVER_H
