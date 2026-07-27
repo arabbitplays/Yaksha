@@ -14,7 +14,7 @@
 #include <util/MonitorUtil.hpp>
 
 
-DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager()
+DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager(std::make_shared<WorkspaceService>(shell_actuator))
 {
     socket_path = dev_mode
                       ? "/tmp/desktop-manager-dev.sock"
@@ -32,9 +32,9 @@ DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager()
 void DesktopManager::initDesktopEnvironment()
 {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup(shell_actuator, [this](const std::string& cmd) { return executeCommand(cmd); });
-    startup.setupWorkspaces();
+    Startup startup(shell_actuator, std::make_shared<WorkspaceService>(shell_actuator), [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupTheme();
+    startup.setupWorkspaces();
     startup.runDashboardTerminal();
     LOGGER->info("Finished initialising Desktop Environment");
 }
@@ -70,7 +70,13 @@ std::string DesktopManager::executeCommand(const std::string& cmd_string) const
         if (!controllers.contains(cmd->keyword))
             return "Error: Controller with keyword " + cmd->keyword + " does not exist";
 
-        return controllers.at(cmd->keyword)->execute(cmd);
+        try
+        {
+            return controllers.at(cmd->keyword)->execute(cmd);
+        } catch (std::exception& e)
+        {
+            LOGGER->error(e.what());
+        }
     }
     catch (const std::exception& e)
     {

@@ -17,9 +17,7 @@ std::string WorkspaceController::execute(io::CommandHandle &cmd) {
         throw std::runtime_error("Expected at least one argument for command " + getKeyword());
     }
 
-    if (cmd->args[0] == "init") {
-        workspace_service->initWorkspaces();
-    } else if (cmd->args[0] == "switch") {
+    if (cmd->args[0] == "switch") {
         if (cmd->args.size() < 2) {
             throw std::runtime_error("Expected at least two arguments for command " + getKeyword() + " switch");
         }

@@ -1,6 +1,7 @@
 #ifndef YAKSHA_HYPREVENTMANAGER_H
 #define YAKSHA_HYPREVENTMANAGER_H
 #include "core/sockets/SocketListener.hpp"
+#include "workspaces/WorkspaceService.hpp"
 
 
 class HyprEventManager
@@ -11,7 +12,7 @@ class HyprEventManager
         std::vector<std::string> arguments;
     };
 public:
-    HyprEventManager();
+    HyprEventManager(const std::shared_ptr<WorkspaceService>& workspace_service);
     ~HyprEventManager() = default;
 
     void poll();
@@ -25,6 +26,8 @@ private:
 
     Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<HyprEventManager>();
     SocketListener socket_listener;
+
+    std::shared_ptr<WorkspaceService> workspace_service;
 
     std::vector<std::string> handled_message_types = { "monitoradded", "monitorremoved" };
 };

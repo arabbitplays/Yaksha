@@ -10,7 +10,7 @@
 #include "../core/ShellActuator.hpp"
 #include <logging/LogManager.hpp>
 
-#include "HyprEventManager.h"
+#include "HyprEventManager.hpp"
 #include "logging/logger/Logger.hpp"
 
 class DesktopManager {

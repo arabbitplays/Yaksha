@@ -5,12 +5,14 @@
 #include <string>
 
 #include "core/ShellActuator.hpp"
+#include "workspaces/WorkspaceService.hpp"
 
 class Startup {
 public:
     using CommandExecutor = std::function<std::string(const std::string&)>;
 
-    explicit Startup(ShellActuatorHandle shell_actuator, CommandExecutor executor);
+    Startup(const ShellActuatorHandle& shell_actuator, std::shared_ptr<WorkspaceService> workspace_service,
+            CommandExecutor executor);
     ~Startup() = default;
 
     void setupWorkspaces();
@@ -19,6 +21,7 @@ public:
 
 private:
     ShellActuatorHandle shell_actuator;
+    std::shared_ptr<WorkspaceService> workspace_service;
     CommandExecutor execute;
 };
 
