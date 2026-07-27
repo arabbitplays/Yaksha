@@ -1,10 +1,11 @@
-#include "include/DesktopManager.hpp"
-#include "../include/core/IController.hpp"
-#include "../include/syncing/SyncController.hpp"
-#include "../include/theming/ThemeController.hpp"
-#include "../include/workspaces/WorkspaceController.hpp"
-#include "../include/core/sockets/SocketServer.hpp"
-#include "../include/core/sockets/SocketListener.hpp"
+#include "app/DesktopManager.hpp"
+
+#include "../../include/core/IController.hpp"
+#include "../../include/syncing/SyncController.hpp"
+#include "../../include/theming/ThemeController.hpp"
+#include "../../include/workspaces/WorkspaceController.hpp"
+#include "../../include/core/sockets/SocketServer.hpp"
+#include "../../include/core/sockets/SocketListener.hpp"
 #include "io/CommandParser.hpp"
 #include "startup/Startup.hpp"
 #include <cmath>
@@ -13,7 +14,7 @@
 #include <util/MonitorUtil.hpp>
 
 
-DesktopManager::DesktopManager(bool dev_mode)
+DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager()
 {
     socket_path = dev_mode
                       ? "/tmp/desktop-manager-dev.sock"
@@ -40,13 +41,6 @@ void DesktopManager::initDesktopEnvironment()
 
 void DesktopManager::run()
 {
-    std::string hypr_socket_path = std::string(getenv("XDG_RUNTIME_DIR"))
-        + "/hypr/"
-        + getenv("HYPRLAND_INSTANCE_SIGNATURE")
-        + "/.socket2.sock";
-    SocketListener hypr_listener(hypr_socket_path);
-    hypr_listener.run();
-
     SocketServer server(socket_path);
     server.create();
     while (true)
@@ -60,14 +54,8 @@ void DesktopManager::run()
         }
         server.closeClient(client);
 
-        std::vector<std::string> messages = hypr_listener.receiveMessages();
-        for (const auto& message : messages)
-        {
-            LOGGER->info("Received message: " + message);
-        }
+        hypr_event_manager.poll();
     }
-
-    hypr_listener.close();
 }
 
 std::string DesktopManager::executeCommand(const std::string& cmd_string) const

@@ -5,7 +5,7 @@ SocketListener::SocketListener(const std::string& socket_path) : client(SocketCl
     client.connectToServer();
 }
 
-void SocketListener::run()
+void SocketListener::listen()
 {
     running.store(true);
     listener_thread = std::thread(&SocketListener::listenWorker, this);

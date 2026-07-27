@@ -4,10 +4,10 @@ subdir('theming')
 subdir('syncing')
 subdir('core')
 subdir('io')
+subdir('app')
 subdir('startup')
 subdir('workspaces')
 
 src += files(
   'main.cpp',
-  'DesktopManager.cpp',
 )

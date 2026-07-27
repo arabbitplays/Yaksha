@@ -6,9 +6,11 @@
 #include <string>
 #include <unordered_map>
 
-#include "core/IController.hpp"
-#include "core/ShellActuator.hpp"
+#include "../core/IController.hpp"
+#include "../core/ShellActuator.hpp"
 #include <logging/LogManager.hpp>
+
+#include "HyprEventManager.h"
 #include "logging/logger/Logger.hpp"
 
 class DesktopManager {
@@ -28,6 +30,8 @@ private:
     Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<DesktopManager>();
 
     std::string executeCommand(const std::string& cmd_string) const;
+
+    HyprEventManager hypr_event_manager;
 
     ShellActuatorHandle shell_actuator = std::make_shared<ShellActuator>();
     std::string socket_path;

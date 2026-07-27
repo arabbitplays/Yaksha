@@ -14,7 +14,7 @@ class SocketListener
     explicit SocketListener(const std::string& socket_path);
     ~SocketListener() = default;
 
-    void run();
+    void listen();
     void close();
     std::vector<std::string> receiveMessages();
 
