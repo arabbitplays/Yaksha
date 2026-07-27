@@ -1,9 +1,12 @@
 #include "../../../include/core/sockets/SocketClient.hpp"
 
+#include <cerrno>
 #include <cstring>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+
+#include "core/sockets/SocketException.hpp"
 
 SocketClient::SocketClient(const std::string& socket_path) : socket_path(socket_path)
 {
@@ -31,8 +34,14 @@ std::vector<std::string> SocketClient::receive()
     while (lines.empty())
     {
         ssize_t n = read(socket_fd, buffer, sizeof(buffer));
-        if (n <= 0)
-            break;
+        if (n == 0)
+        {
+            throw SocketException("Socket " + socket_path + " closed by peer");
+        }
+        if (n < 0)
+        {
+            throw SocketException("read() on socket " + socket_path + " failed: " + std::strerror(errno));
+        }
         pending.append(buffer, n);
 
         // split into lines

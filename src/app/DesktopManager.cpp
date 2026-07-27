@@ -14,11 +14,21 @@
 #include <util/MonitorUtil.hpp>
 
 
-DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager(std::make_shared<WorkspaceService>(shell_actuator))
+DesktopManager::DesktopManager(bool dev_mode)
 {
-    socket_path = dev_mode
-                      ? "/tmp/desktop-manager-dev.sock"
-                      : std::string(getenv("XDG_RUNTIME_DIR")) + "/desktop-manager/desktop-manager.sock";
+    if (dev_mode)
+    {
+        socket_path = "/tmp/desktop-manager-dev.sock";
+    }
+    else
+    {
+        const char* runtime_dir = getenv("XDG_RUNTIME_DIR");
+        if (runtime_dir == nullptr)
+        {
+            throw std::runtime_error("XDG_RUNTIME_DIR is not set");
+        }
+        socket_path = std::string(runtime_dir) + "/desktop-manager/desktop-manager.sock";
+    }
     addController<ThemeController>();
     addController<WorkspaceController>();
     addController<SyncController>();
@@ -32,7 +42,7 @@ DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager(std::make_sha
 void DesktopManager::initDesktopEnvironment()
 {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup(shell_actuator, std::make_shared<WorkspaceService>(shell_actuator), [this](const std::string& cmd) { return executeCommand(cmd); });
+    Startup startup(shell_actuator, workspace_service, [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupTheme();
     startup.setupWorkspaces();
     startup.runDashboardTerminal();
@@ -76,12 +86,11 @@ std::string DesktopManager::executeCommand(const std::string& cmd_string) const
         } catch (std::exception& e)
         {
             LOGGER->error(e.what());
+            return "Error: " + std::string(e.what());
         }
     }
     catch (const std::exception& e)
     {
-        std::string msg = "Error while executing command: " + std::string(e.what());
-        // TODO why returning?
-        return msg;
+        return "Error while executing command: " + std::string(e.what());
     }
 }

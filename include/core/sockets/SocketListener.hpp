@@ -1,6 +1,7 @@
 #ifndef YAKSHA_SOCKETLISTENER_H
 #define YAKSHA_SOCKETLISTENER_H
 #include <atomic>
+#include <exception>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -28,6 +29,7 @@ private:
     std::mutex message_mtx;
 
     std::vector<std::string> pending_messages{};
+    std::exception_ptr worker_exception{nullptr};
 };
 
 
