@@ -1,4 +1,3 @@
-
 #include "include/DesktopManager.hpp"
 #include "../include/core/IController.hpp"
 #include "../include/syncing/SyncController.hpp"
@@ -19,20 +18,25 @@
 #include <iostream>
 #include <util/MonitorUtil.hpp>
 
-DesktopManager::DesktopManager(bool dev_mode) {
+#include "../include/core/sockets/SocketServer.hpp"
+
+DesktopManager::DesktopManager(bool dev_mode)
+{
     socket_path = dev_mode
-        ? "/tmp/desktop-manager-dev.sock"
-        : std::string(getenv("XDG_RUNTIME_DIR")) + "/desktop-manager/desktop-manager.sock"; 
+                      ? "/tmp/desktop-manager-dev.sock"
+                      : std::string(getenv("XDG_RUNTIME_DIR")) + "/desktop-manager/desktop-manager.sock";
     addController<ThemeController>();
     addController<WorkspaceController>();
     addController<SyncController>();
 
-    if (!dev_mode) {
+    if (!dev_mode)
+    {
         initDesktopEnvironment();
     }
 }
 
-void DesktopManager::initDesktopEnvironment() {
+void DesktopManager::initDesktopEnvironment()
+{
     LOGGER->info("Initialising Desktop Environment");
     Startup startup(shell_actuator, [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupWorkspaces();
@@ -41,59 +45,29 @@ void DesktopManager::initDesktopEnvironment() {
     LOGGER->info("Finished initialising Desktop Environment");
 }
 
-void DesktopManager::run() {
-    int server = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (server < 0) { perror("socket"); exit(1); }
-
-    sockaddr_un addr{};
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, socket_path.c_str()); 
-    unlink(addr.sun_path);
-
-    if (bind(server, (sockaddr*)&addr, sizeof(addr)) < 0) { 
-        perror("bind");
-        exit(1);
-    }
-
-    if (listen(server, 5) < 0) {
-        perror("listen");
-        exit(1);
-    }
-
-    LOGGER->info("Listening on socket " + socket_path);
-
-    while (true) {
-        int client = accept(server, nullptr, nullptr);
-        char buf[256];
-        int n = read(client, buf, sizeof(buf) - 1);
-        if (n > 0) {
-            buf[n] = 0;
-            std::string response = executeCommand(std::string(buf));
-
-            const char* data = response.c_str();
-            size_t remaining = response.size();
-            while (remaining > 0) {
-                ssize_t written = write(client, data, remaining);
-                if (written < 0) {
-                    if (errno == EINTR) continue;
-                    LOGGER->error("write failed: " + std::string(strerror(errno)));
-                    break;
-                }
-                data += written;
-                remaining -= written;
-            }
-            shutdown(client, SHUT_WR);
-
-            LOGGER->debug("Response:\n" + response);
+void DesktopManager::run()
+{
+    SocketServer server(socket_path);
+    server.create();
+    while (true)
+    {
+        int32_t client = server.acceptClient();
+        std::string request = server.receive(client);
+        if (!request.empty())
+        {
+            std::string response = executeCommand(request);
+            server.send(client, response);
         }
-        close(client);
+        server.closeClient(client);
     }
 }
 
-std::string DesktopManager::executeCommand(const std::string& cmd_string) const {
+std::string DesktopManager::executeCommand(const std::string& cmd_string) const
+{
     LOGGER->info("Received command: " + cmd_string);
 
-    try {
+    try
+    {
         io::CommandParser parser;
         io::CommandHandle cmd = parser.parseCommand(cmd_string);
 
@@ -101,7 +75,9 @@ std::string DesktopManager::executeCommand(const std::string& cmd_string) const 
             return "Error: Controller with keyword " + cmd->keyword + " does not exist";
 
         return controllers.at(cmd->keyword)->execute(cmd);
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception& e)
+    {
         std::string msg = "Error while executing command: " + std::string(e.what());
         // TODO why returning?
         return msg;
