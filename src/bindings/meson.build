@@ -2,5 +2,8 @@
 
 
 src += files(
+  'SwwwBinding.cpp',
+  'WaybarBinding.cpp',
+  'KittyBinding.cpp',
   'HyprlandBinding.cpp',
 )

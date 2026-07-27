@@ -6,6 +6,9 @@
 #include <unordered_map>
 
 #include "../bindings/HyprlandBinding.hpp"
+#include "../bindings/KittyBinding.hpp"
+#include "../bindings/SwwwBinding.hpp"
+#include "../bindings/WaybarBinding.hpp"
 #include "../core/IController.hpp"
 #include "../core/ShellActuator.hpp"
 #include <logging/LogManager.hpp>
@@ -37,6 +40,9 @@ private:
     ShellActuatorHandle shell_actuator;
 
     HyprlandBindingHandle hyprland_binding;
+    SwwwBindingHandle swww_binding;
+    KittyBindingHandle kitty_binding;
+    WaybarBindingHandle waybar_binding;
 
     std::shared_ptr<WorkspaceService> workspace_service;
     std::shared_ptr<ThemeService> theme_service;

@@ -32,9 +32,13 @@ void DesktopManager::initApp()
     shell_actuator = std::make_shared<ShellActuator>();
 
     hyprland_binding = std::make_shared<HyprlandBinding>(shell_actuator);
+    swww_binding = std::make_shared<SwwwBinding>(shell_actuator);
+    kitty_binding = std::make_shared<KittyBinding>(shell_actuator);
+    waybar_binding = std::make_shared<WaybarBinding>(shell_actuator);
 
     workspace_service = std::make_shared<WorkspaceService>(hyprland_binding);
-    theme_service = std::make_shared<ThemeService>(shell_actuator, hyprland_binding);
+    theme_service = std::make_shared<ThemeService>(
+        shell_actuator, hyprland_binding, swww_binding, kitty_binding, waybar_binding);
     sync_service = std::make_shared<SyncService>(shell_actuator);
 
     registerController(std::make_shared<ThemeController>(theme_service));
@@ -57,7 +61,7 @@ void DesktopManager::registerController(const std::shared_ptr<IController>& cont
 void DesktopManager::initDesktopEnvironment()
 {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup(shell_actuator, workspace_service, [this](const std::string& cmd) { return executeCommand(cmd); });
+    Startup startup(kitty_binding, workspace_service, [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupTheme();
     startup.setupWorkspaces();
     startup.runDashboardTerminal();

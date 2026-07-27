@@ -6,8 +6,16 @@
 #include "util/FileUtil.hpp"
 #include "util/MonitorUtil.hpp"
 
-ThemeService::ThemeService(const ShellActuatorHandle& shell_actuator, HyprlandBindingHandle hyprland_binding)
-    : shell_actuator(shell_actuator), hyprland_binding(std::move(hyprland_binding))
+ThemeService::ThemeService(const ShellActuatorHandle& shell_actuator,
+                           HyprlandBindingHandle hyprland_binding,
+                           SwwwBindingHandle swww_binding,
+                           KittyBindingHandle kitty_binding,
+                           WaybarBindingHandle waybar_binding)
+    : shell_actuator(shell_actuator),
+      hyprland_binding(std::move(hyprland_binding)),
+      swww_binding(std::move(swww_binding)),
+      kitty_binding(std::move(kitty_binding)),
+      waybar_binding(std::move(waybar_binding))
 {
     monitor_names = MonitorUtil::getMonitorNamesForCurrSystem();
 
@@ -44,11 +52,11 @@ void ThemeService::setTheme(const std::string& theme_name)
 
 void ThemeService::setWallpaperAll(const std::string& name) const
 {
-    shell_actuator->executeShellCommand("swww img " + std::string(WALLPAPER_DIR) + "/" + name + " " + std::string(SWWW_OPTIONS));
+    swww_binding->setWallpaper(std::string(WALLPAPER_DIR) + "/" + name);
 }
 
 void ThemeService::setWallpaper(const std::string& name, const std::string& monitor_name) const {
-    shell_actuator->executeShellCommand("swww img " + std::string(WALLPAPER_DIR) + "/" + name + " " + std::string (SWWW_OPTIONS) + " -o " + monitor_name);
+    swww_binding->setWallpaper(std::string(WALLPAPER_DIR) + "/" + name, monitor_name);
 }
 
 void ThemeService::setKittyTheme(const std::string& name) const
@@ -56,7 +64,7 @@ void ThemeService::setKittyTheme(const std::string& name) const
     std::string src = std::string(KITTY_THEME_DIR) + "/" + name;
     std::string dst = std::string(KITTY_THEME_FILE);
     FileUtil::copyFile(shell_actuator, src, dst);
-    shell_actuator->executeShellCommand("kill -USR1 $(pidof kitty)");
+    kitty_binding->reload();
 }
 
 void ThemeService::setNvimTheme(const std::string& name) {
@@ -76,7 +84,5 @@ void ThemeService::setWaybarTheme(const std::string& name) const
     std::string src = std::string(WAYBAR_THEME_DIR) + "/" + name;
     std::string dst = std::string(WAYBAR_THEME_FILE);
     FileUtil::copyFile(shell_actuator, src, dst);
-
-    shell_actuator->executeShellCommand("pkill waybar");
-    std::system("waybar > /dev/null 2>&1 &"); // TODO is this needed outside of the shell actuator?
+    waybar_binding->restart();
 }
