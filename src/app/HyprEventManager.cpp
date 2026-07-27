@@ -1,8 +1,9 @@
-#include "../../include/app/HyprEventManager.h"
+#include "../../include/app/HyprEventManager.hpp"
 
 #include "core/util/StringUtil.h"
+#include "workspaces/WorkspaceService.hpp"
 
-HyprEventManager::HyprEventManager() : socket_listener(getHyprSocketPath())
+HyprEventManager::HyprEventManager(const std::shared_ptr<WorkspaceService>& workspace_service) : socket_listener(getHyprSocketPath()), workspace_service(workspace_service)
 {
     socket_listener.listen();
 }
@@ -32,9 +33,16 @@ void HyprEventManager::handleMessage(const HyprMessage& hypr_message) const
         return;
     }
 
-    logger->info(hypr_message.message_type);
+    if (hypr_message.message_type == "monitoradded")
+    {
+        assert(hypr_message.arguments.size() > 0);
+        workspace_service->initMonitor(hypr_message.arguments.at(0));
+    }
+
+    std::string log_message = hypr_message.message_type;
     for (const auto& arg : hypr_message.arguments)
-        logger->info("Arg: " + arg);
+        log_message += " " + arg;
+    logger->info(log_message);
 }
 
 bool HyprEventManager::ignoreMessage(const HyprMessage& hypr_message) const

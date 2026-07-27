@@ -10,6 +10,8 @@ public:
     explicit WorkspaceService(const ShellActuatorHandle& shell_actuator);
     ~WorkspaceService() = default;
 
+    void initMonitor(std::string monitor_name) const;
+    void initExistingMonitors() const;
     void initWorkspaces() const;
     void switchWorkspace(uint32_t target_virtual) const;
     void sendWindow(uint32_t target_virtual) const;
@@ -20,6 +22,8 @@ private:
 
     Workspace fromHyprlandId(uint32_t hyprland_id) const;
     static uint32_t toHyprlandId(const Workspace& workspace);
+
+    Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<WorkspaceService>();
 
     ShellActuatorHandle shell_actuator;
     std::vector<std::string> monitor_names;

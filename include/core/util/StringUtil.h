@@ -12,7 +12,7 @@ public:
         std::string curr_sub_str;
         for (char c : input)
         {
-            if (c == delimiter || c == '\n')
+            if (c == delimiter)
             {
                 if (curr_sub_str.empty())
                     continue;
@@ -23,6 +23,10 @@ public:
             {
                 curr_sub_str += c;
             }
+        }
+        if (!curr_sub_str.empty())
+        {
+            result.push_back(curr_sub_str);
         }
         return result;
     }
