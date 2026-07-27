@@ -8,6 +8,17 @@ WorkspaceService::WorkspaceService(const ShellActuatorHandle& shell_actuator) : 
     monitor_names = MonitorUtil::getMonitorNamesForCurrSystem();
 }
 
+void WorkspaceService::initWorkspaces() const {
+    std::string batch = "hyprctl --batch \"";
+    for (uint32_t i = 0; i < monitor_names.size(); i++) {
+        batch += "dispatch focusmonitor " + monitor_names[i] + " ; ";
+        batch += "dispatch workspace " + std::to_string(toHyprlandId({i, 0})) + " ; ";
+    }
+    batch += "dispatch focusmonitor " + monitor_names[0] + "\"";
+
+    shell_actuator->executeShellCommand(batch);
+}
+
 void WorkspaceService::switchWorkspace(uint32_t target_virtual) const {
     Workspace active_workspace = getActiveWorkspace();
 

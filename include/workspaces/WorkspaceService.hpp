@@ -10,6 +10,7 @@ public:
     explicit WorkspaceService(const ShellActuatorHandle& shell_actuator);
     ~WorkspaceService() = default;
 
+    void initWorkspaces() const;
     void switchWorkspace(uint32_t target_virtual) const;
     void sendWindow(uint32_t target_virtual) const;
     void moveWindow(WindowMovement movement) const;

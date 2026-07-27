@@ -6,7 +6,7 @@
 Startup::Startup(ShellActuatorHandle shell_actuator, CommandExecutor executor) : shell_actuator(shell_actuator), execute(std::move(executor)) {}
 
 void Startup::setupWorkspaces() {
-    execute("workspace switch 1");
+    execute("workspace init");
 }
 
 void Startup::setupTheme() {
