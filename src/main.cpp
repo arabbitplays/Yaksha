@@ -1,5 +1,4 @@
-#include "DesktopManager.hpp"
-#include "io/CommandParser.hpp"
+#include "../include/app/DesktopManager.hpp"
 #include <memory>
 
 #include "configuration/LoggingConfiguration.hpp"

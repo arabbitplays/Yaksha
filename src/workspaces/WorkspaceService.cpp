@@ -1,5 +1,6 @@
 #include "../../include/workspaces/WorkspaceService.hpp"
 
+#include "core/util/StringUtil.h"
 #include "util/MonitorUtil.hpp"
 #include "workspaces/model/WindowMovement.hpp"
 
@@ -8,12 +9,47 @@ WorkspaceService::WorkspaceService(const ShellActuatorHandle& shell_actuator) : 
     monitor_names = MonitorUtil::getMonitorNamesForCurrSystem();
 }
 
+void WorkspaceService::initMonitor(std::string monitor_name) const {
+    std::string batch = "hyprctl --batch \"";
+    int32_t physical_id = -1;
+    for (uint32_t i = 0; i < monitor_names.size(); i++)
+    {
+        if (monitor_names.at(i) == monitor_name)
+        {
+            physical_id = i;
+        }
+    }
+    if (physical_id < 0)
+    {
+        logger->warn("Can not initialize monitor: Unknow monitor name " + monitor_name);
+        return;
+    }
+    batch += "dispatch focusmonitor " + monitor_name + " ; ";
+    batch += "dispatch workspace " + std::to_string(toHyprlandId({static_cast<uint32_t>(physical_id), 0}));
+    batch += "\"";
+
+    shell_actuator->executeShellCommand(batch);
+}
+
+void WorkspaceService::initExistingMonitors() const {
+    ShellResult result = shell_actuator->executeShellCommand("hyprctl monitors -j | jq -r '.[].name'");
+    if (result.status != 0)
+    {
+        logger->warn("Failed to query existing monitors: " + result.response);
+        return;
+    }
+    for (const std::string& name : StringUtil::split(result.response, '\n'))
+    {
+        initMonitor(name);
+    }
+}
+
 void WorkspaceService::switchWorkspace(uint32_t target_virtual) const {
     Workspace active_workspace = getActiveWorkspace();
 
     std::string batch = "hyprctl --batch \"";
     for (uint32_t i = 0; i < monitor_names.size(); i++) {
-        batch += "dispatch focusmonitor " + monitor_names[i] + " ; ";
+        batch += "dispatch focusmonitor " + monitor_names.at(i) + " ; ";
         batch += "dispatch workspace " + std::to_string(toHyprlandId({i, target_virtual})) + " ; ";
     }
     batch += "dispatch focusmonitor " + monitor_names[active_workspace.physical_id] + "\"";
@@ -64,8 +100,13 @@ std::string WorkspaceService::getActiveWindowId() const {
     return shell_actuator->executeShellCommand("hyprctl activewindow -j | jq -r '.address'").response;
 }
 
-Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) {
-    return {hyprland_id / 10 - 1, hyprland_id % 10 - 1};
+Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) const {
+    Workspace workspace = {hyprland_id / 10 - 1, hyprland_id % 10 - 1};
+    if(workspace.physical_id >= monitor_names.size())
+    {
+        throw std::runtime_error("Invalid hyprland workspace id " + std::to_string(hyprland_id));
+    }
+    return workspace;
 }
 
 uint32_t WorkspaceService::toHyprlandId(const Workspace& workspace) {

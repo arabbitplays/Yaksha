@@ -51,6 +51,7 @@
             meson
             ninja
             pkg-config
+            python3
           ];
         };
       }

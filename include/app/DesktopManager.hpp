@@ -6,10 +6,13 @@
 #include <string>
 #include <unordered_map>
 
-#include "core/IController.hpp"
-#include "core/ShellActuator.hpp"
+#include "../core/IController.hpp"
+#include "../core/ShellActuator.hpp"
 #include <logging/LogManager.hpp>
+
+#include "HyprEventManager.hpp"
 #include "logging/logger/Logger.hpp"
+#include "workspaces/WorkspaceService.hpp"
 
 class DesktopManager {
 public:
@@ -30,6 +33,9 @@ private:
     std::string executeCommand(const std::string& cmd_string) const;
 
     ShellActuatorHandle shell_actuator = std::make_shared<ShellActuator>();
+    std::shared_ptr<WorkspaceService> workspace_service = std::make_shared<WorkspaceService>(shell_actuator);
+    HyprEventManager hypr_event_manager{workspace_service};
+
     std::string socket_path;
     std::unordered_map<std::string, std::shared_ptr<IController>> controllers;
 };

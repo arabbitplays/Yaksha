@@ -2,26 +2,12 @@
 #include <exception>
 #include <stdexcept>
 
-namespace io {
-    std::vector<std::string> splitAt(const std::string& input, char sep) {
-        std::vector<std::string> result{};
-        std::string curr_sub_str = "";
-        for (char c : input) {
-            if (c == sep || c == '\n') {
-                if (curr_sub_str.empty())
-                    continue;
-                result.push_back(curr_sub_str);
-                curr_sub_str.clear();
-            } else {
-                curr_sub_str += c;
-            }
-        }  
-        return result;
-    }
+#include "core/util/StringUtil.h"
 
+namespace io {
     std::shared_ptr<Command> CommandParser::parseCommand(const std::string& raw) {
         auto cmd = std::make_shared<Command>();
-        std::vector<std::string> parts = splitAt(raw, ' ');
+        std::vector<std::string> parts = StringUtil::split(raw, ' ');
         if (parts.empty()) {
             throw std::runtime_error("Empty command");
         }
