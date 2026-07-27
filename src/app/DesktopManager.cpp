@@ -14,7 +14,7 @@
 #include <util/MonitorUtil.hpp>
 
 
-DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager(std::make_shared<WorkspaceService>(shell_actuator))
+DesktopManager::DesktopManager(bool dev_mode)
 {
     socket_path = dev_mode
                       ? "/tmp/desktop-manager-dev.sock"
@@ -32,7 +32,7 @@ DesktopManager::DesktopManager(bool dev_mode) : hypr_event_manager(std::make_sha
 void DesktopManager::initDesktopEnvironment()
 {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup(shell_actuator, std::make_shared<WorkspaceService>(shell_actuator), [this](const std::string& cmd) { return executeCommand(cmd); });
+    Startup startup(shell_actuator, workspace_service, [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupTheme();
     startup.setupWorkspaces();
     startup.runDashboardTerminal();
