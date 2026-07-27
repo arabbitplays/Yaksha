@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "../bindings/GitBinding.hpp"
 #include "../bindings/HyprlandBinding.hpp"
 #include "../bindings/KittyBinding.hpp"
 #include "../bindings/SwwwBinding.hpp"
@@ -43,6 +44,7 @@ private:
     SwwwBindingHandle swww_binding;
     KittyBindingHandle kitty_binding;
     WaybarBindingHandle waybar_binding;
+    GitBindingHandle git_binding;
 
     std::shared_ptr<WorkspaceService> workspace_service;
     std::shared_ptr<ThemeService> theme_service;
