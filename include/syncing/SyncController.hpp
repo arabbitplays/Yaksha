@@ -1,13 +1,14 @@
 #ifndef DESKTOP_MANAGER_SYNCCONTROLLER_HPP
 #define DESKTOP_MANAGER_SYNCCONTROLLER_HPP
 
+#include <memory>
+
 #include "SyncService.hpp"
 #include "../core/IController.hpp"
-#include "../core/ShellActuator.hpp"
 
 class SyncController : public IController {
 public:
-    explicit SyncController(const ShellActuatorHandle& shell_actuator);
+    explicit SyncController(std::shared_ptr<SyncService> sync_service);
     ~SyncController() override = default;
 
     std::string getKeyword() const override;

@@ -5,16 +5,12 @@
 #include "../../include/theming/ThemeController.hpp"
 #include "../../include/workspaces/WorkspaceController.hpp"
 #include "../../include/core/sockets/SocketServer.hpp"
-#include "../../include/core/sockets/SocketListener.hpp"
 #include "io/CommandParser.hpp"
 #include "startup/Startup.hpp"
-#include <cmath>
 #include <memory>
 
-#include <util/MonitorUtil.hpp>
 
-
-DesktopManager::DesktopManager(bool dev_mode)
+DesktopManager::DesktopManager(bool dev_mode) : dev_mode(dev_mode)
 {
     if (dev_mode)
     {
@@ -29,9 +25,29 @@ DesktopManager::DesktopManager(bool dev_mode)
         }
         socket_path = std::string(runtime_dir) + "/desktop-manager/desktop-manager.sock";
     }
-    addController<ThemeController>();
-    addController<WorkspaceController>();
-    addController<SyncController>();
+}
+
+void DesktopManager::initApp()
+{
+    shell_actuator = std::make_shared<ShellActuator>();
+
+    hyprland_binding = std::make_shared<HyprlandBinding>(shell_actuator);
+    swww_binding = std::make_shared<SwwwBinding>(shell_actuator);
+    kitty_binding = std::make_shared<KittyBinding>(shell_actuator);
+    waybar_binding = std::make_shared<WaybarBinding>(shell_actuator);
+    git_binding = std::make_shared<GitBinding>(shell_actuator);
+    system_binding = std::make_shared<SystemBinding>(shell_actuator);
+
+    workspace_service = std::make_shared<WorkspaceService>(hyprland_binding);
+    theme_service = std::make_shared<ThemeService>(
+        hyprland_binding, swww_binding, kitty_binding, waybar_binding, system_binding);
+    sync_service = std::make_shared<SyncService>(git_binding, system_binding);
+
+    registerController(std::make_shared<ThemeController>(theme_service));
+    registerController(std::make_shared<WorkspaceController>(workspace_service));
+    registerController(std::make_shared<SyncController>(sync_service));
+
+    hypr_event_manager = std::make_unique<HyprEventManager>(workspace_service);
 
     if (!dev_mode)
     {
@@ -39,10 +55,15 @@ DesktopManager::DesktopManager(bool dev_mode)
     }
 }
 
+void DesktopManager::registerController(const std::shared_ptr<IController>& controller)
+{
+    controllers[controller->getKeyword()] = controller;
+}
+
 void DesktopManager::initDesktopEnvironment()
 {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup(shell_actuator, workspace_service, [this](const std::string& cmd) { return executeCommand(cmd); });
+    Startup startup(kitty_binding, workspace_service, [this](const std::string& cmd) { return executeCommand(cmd); });
     startup.setupTheme();
     startup.setupWorkspaces();
     startup.runDashboardTerminal();
@@ -64,7 +85,7 @@ void DesktopManager::run()
         }
         server.closeClient(client);
 
-        hypr_event_manager.poll();
+        hypr_event_manager->poll();
     }
 }
 

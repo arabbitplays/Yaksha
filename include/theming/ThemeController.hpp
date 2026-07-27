@@ -1,17 +1,16 @@
 #ifndef THEME_CONTROLLER
 #define THEME_CONTROLLER
 
+#include <memory>
 #include <string>
-#include "io/CommandParser.hpp"
 
 #include "ThemeService.hpp"
 #include "core/IController.hpp"
-#include "core/ShellActuator.hpp"
+#include "io/CommandParser.hpp"
 
 class ThemeController : public IController {
 public:
-
-    explicit ThemeController(const ShellActuatorHandle& shell_actuator);
+    explicit ThemeController(std::shared_ptr<ThemeService> theme_service);
     ~ThemeController() override = default;
 
     [[nodiscard]] std::string getKeyword() const override;
@@ -22,4 +21,3 @@ private:
 };
 
 #endif // THEME_CONTROLLER
-

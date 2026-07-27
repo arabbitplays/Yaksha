@@ -7,11 +7,12 @@
 class LoggingConfiguration
 {
 public:
-    static void configure()
+    static void configure(bool verbose)
     {
+        Logging::Severity min_severity = verbose ? Logging::TRACE : Logging::INFO;
         auto console_target = std::make_shared<Logging::ConsoleTarget>();
         auto log_config = Logging::LogConfigurationBuilder()
-            .addRule("*", Logging::TRACE, console_target)
+            .addRule("*", min_severity, console_target)
             .addTarget(console_target).build();
         Logging::LogManager::setLogConfiguration(log_config);
     }

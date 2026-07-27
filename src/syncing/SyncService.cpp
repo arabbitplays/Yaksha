@@ -1,8 +1,11 @@
 #include "../../include/syncing/SyncService.hpp"
 
+#include <utility>
+
 #include "syncing/model/GitSyncResult.hpp"
 
-SyncService::SyncService(const ShellActuatorHandle& shell_actuator) : shell_actuator(shell_actuator)
+SyncService::SyncService(GitBindingHandle git_binding, SystemBindingHandle system_binding)
+    : git_binding(std::move(git_binding)), system_binding(std::move(system_binding))
 {
     for (const auto& path : {"/Resources/Second-Brain", "/Resources/Second-Brain/Zettelkasten", "/.install"})
     {
@@ -20,7 +23,7 @@ SyncService::SyncService(const ShellActuatorHandle& shell_actuator) : shell_actu
 void SyncService::addGitRepositoryToSync(const std::filesystem::path& path)
 {
     auto git_repository = std::make_shared<GitRepository>(path);
-    if (!isGitRepository(git_repository))
+    if (!git_binding->isRepository(getGitPrefix(git_repository)))
     {
         throw std::invalid_argument("'" + path.string() + "' is not a git repository");
     }
@@ -53,37 +56,30 @@ GitSyncResult SyncService::syncConfigFiles()
 GitSyncResult SyncService::syncGitRepository(const std::string& name, const std::string& git_prefix,
                                              std::vector<std::string> add_paths)
 {
-    ShellResult pull_result = shell_actuator->executeShellCommand(git_prefix + " pull");
-    if (pull_result.status != 0)
+    if (!git_binding->pull(git_prefix))
     {
         return {name, PullResult::FAILED, PushResult::FAILED};
     }
 
     for (const auto& add_path : add_paths)
     {
-        ShellResult add_result = shell_actuator->executeShellCommand(git_prefix + " add " + add_path);
-        if (add_result.status != 0)
+        if (!git_binding->add(git_prefix, add_path))
         {
             return {name, PullResult::SUCCESS, PushResult::FAILED};
         }
     }
 
-    ShellResult staged_result = shell_actuator->executeShellCommand(
-        git_prefix + " diff --cached --quiet");
-    if (staged_result.status == 0)
+    if (!git_binding->hasStagedChanges(git_prefix))
     {
         return {name, PullResult::SUCCESS, PushResult::NOTHING_TO_COMMIT};
     }
 
-    auto commit_result = shell_actuator->executeShellCommand(
-        git_prefix + " commit -a -m \"" + getSyncCommitMessage() + "\"");
-    if (commit_result.status != 0)
+    if (!git_binding->commit(git_prefix, getSyncCommitMessage()))
     {
         return {name, PullResult::SUCCESS, PushResult::FAILED};
     }
 
-    ShellResult push_result = shell_actuator->executeShellCommand(git_prefix + " push");
-    if (push_result.status != 0)
+    if (!git_binding->push(git_prefix))
     {
         return {name, PullResult::SUCCESS, PushResult::FAILED};
     }
@@ -96,22 +92,9 @@ std::string SyncService::getGitPrefix(const GitRepositoryHandle& repository)
     return "git -C " + home() + repository->path.string();
 }
 
-bool SyncService::isGitRepository(const GitRepositoryHandle& repository)
-{
-    std::string git_prefix = getGitPrefix(repository);
-    int32_t is_repo_status = shell_actuator->executeShellCommandSilent(
-        git_prefix + " rev-parse --is-inside-work-tree");
-    return is_repo_status == 0;
-}
-
 std::string SyncService::getSyncCommitMessage() const
 {
-    return "Sync " + currentDate();
-}
-
-std::string SyncService::currentDate() const
-{
-    return shell_actuator->executeShellCommand("date").response;
+    return "Sync " + system_binding->currentDate();
 }
 
 std::string SyncService::home()
