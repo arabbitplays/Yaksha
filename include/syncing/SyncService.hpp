@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "bindings/GitBinding.hpp"
-#include "core/ShellActuator.hpp"
+#include "bindings/SystemBinding.hpp"
 #include <logging/LogManager.hpp>
 #include "model/GitRepository.hpp"
 #include "model/GitSyncResult.hpp"
@@ -11,7 +11,7 @@
 class SyncService
 {
 public:
-    SyncService(const ShellActuatorHandle& shell_actuator, GitBindingHandle git_binding);
+    SyncService(GitBindingHandle git_binding, SystemBindingHandle system_binding);
     ~SyncService() = default;
 
     void addGitRepositoryToSync(const std::filesystem::path& path);
@@ -23,12 +23,11 @@ private:
 
     static std::string getGitPrefix(const GitRepositoryHandle& repository);
     std::string getSyncCommitMessage() const;
-    std::string currentDate() const;
     static std::string home();
 
     Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<SyncService>();
-    ShellActuatorHandle shell_actuator;
     GitBindingHandle git_binding;
+    SystemBindingHandle system_binding;
 
     std::vector<GitRepositoryHandle> syncedRepositories{};
 };

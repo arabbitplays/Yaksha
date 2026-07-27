@@ -36,11 +36,12 @@ void DesktopManager::initApp()
     kitty_binding = std::make_shared<KittyBinding>(shell_actuator);
     waybar_binding = std::make_shared<WaybarBinding>(shell_actuator);
     git_binding = std::make_shared<GitBinding>(shell_actuator);
+    system_binding = std::make_shared<SystemBinding>(shell_actuator);
 
     workspace_service = std::make_shared<WorkspaceService>(hyprland_binding);
     theme_service = std::make_shared<ThemeService>(
-        shell_actuator, hyprland_binding, swww_binding, kitty_binding, waybar_binding);
-    sync_service = std::make_shared<SyncService>(shell_actuator, git_binding);
+        hyprland_binding, swww_binding, kitty_binding, waybar_binding, system_binding);
+    sync_service = std::make_shared<SyncService>(git_binding, system_binding);
 
     registerController(std::make_shared<ThemeController>(theme_service));
     registerController(std::make_shared<WorkspaceController>(workspace_service));

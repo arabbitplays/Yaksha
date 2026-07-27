@@ -4,8 +4,8 @@
 
 #include "syncing/model/GitSyncResult.hpp"
 
-SyncService::SyncService(const ShellActuatorHandle& shell_actuator, GitBindingHandle git_binding)
-    : shell_actuator(shell_actuator), git_binding(std::move(git_binding))
+SyncService::SyncService(GitBindingHandle git_binding, SystemBindingHandle system_binding)
+    : git_binding(std::move(git_binding)), system_binding(std::move(system_binding))
 {
     for (const auto& path : {"/Resources/Second-Brain", "/Resources/Second-Brain/Zettelkasten", "/.install"})
     {
@@ -94,12 +94,7 @@ std::string SyncService::getGitPrefix(const GitRepositoryHandle& repository)
 
 std::string SyncService::getSyncCommitMessage() const
 {
-    return "Sync " + currentDate();
-}
-
-std::string SyncService::currentDate() const
-{
-    return shell_actuator->executeShellCommand("date").response;
+    return "Sync " + system_binding->currentDate();
 }
 
 std::string SyncService::home()

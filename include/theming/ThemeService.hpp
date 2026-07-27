@@ -7,18 +7,18 @@
 #include "bindings/HyprlandBinding.hpp"
 #include "bindings/KittyBinding.hpp"
 #include "bindings/SwwwBinding.hpp"
+#include "bindings/SystemBinding.hpp"
 #include "bindings/WaybarBinding.hpp"
-#include "core/ShellActuator.hpp"
 #include "model/Theme.hpp"
 
 class ThemeService
 {
 public:
-    ThemeService(const ShellActuatorHandle& shell_actuator,
-                 HyprlandBindingHandle hyprland_binding,
+    ThemeService(HyprlandBindingHandle hyprland_binding,
                  SwwwBindingHandle swww_binding,
                  KittyBindingHandle kitty_binding,
-                 WaybarBindingHandle waybar_binding);
+                 WaybarBindingHandle waybar_binding,
+                 SystemBindingHandle system_binding);
     ~ThemeService() = default;
 
     void setTheme(const std::string& theme_name);
@@ -39,13 +39,12 @@ private:
     static constexpr char* WAYBAR_THEME_FILE = "~/.config/waybar/current-theme.css";
     static constexpr char* WAYBAR_THEME_DIR = "~/.config/waybar/themes";
 
-    ShellActuatorHandle shell_actuator;
     HyprlandBindingHandle hyprland_binding;
     SwwwBindingHandle swww_binding;
     KittyBindingHandle kitty_binding;
     WaybarBindingHandle waybar_binding;
+    SystemBindingHandle system_binding;
 
-    std::vector<std::string> monitor_names;
     std::unordered_map<std::string, Theme> themes;
 };
 

@@ -8,10 +8,6 @@ public:
     FileUtil() = default;
     ~FileUtil() = default;
 
-    static void copyFile(ShellActuatorHandle shell_actuator, const std::string& src_path, const std::string& dst_path) {
-        shell_actuator->executeShellCommand("cp " + src_path + " " + dst_path);
-    }
-
     static std::string expandHome(const std::string& path) {
         if (!path.starts_with("~"))
             return path;
@@ -35,4 +31,3 @@ public:
 };
 
 #endif // FILE_UTIL
-
