@@ -5,16 +5,12 @@
 #include "../../include/theming/ThemeController.hpp"
 #include "../../include/workspaces/WorkspaceController.hpp"
 #include "../../include/core/sockets/SocketServer.hpp"
-#include "../../include/core/sockets/SocketListener.hpp"
 #include "io/CommandParser.hpp"
 #include "startup/Startup.hpp"
-#include <cmath>
 #include <memory>
 
-#include <util/MonitorUtil.hpp>
 
-
-DesktopManager::DesktopManager(bool dev_mode)
+DesktopManager::DesktopManager(bool dev_mode) : dev_mode(dev_mode)
 {
     if (dev_mode)
     {
@@ -29,14 +25,31 @@ DesktopManager::DesktopManager(bool dev_mode)
         }
         socket_path = std::string(runtime_dir) + "/desktop-manager/desktop-manager.sock";
     }
-    addController<ThemeController>();
-    addController<WorkspaceController>();
-    addController<SyncController>();
+}
+
+void DesktopManager::initApp()
+{
+    shell_actuator = std::make_shared<ShellActuator>();
+
+    workspace_service = std::make_shared<WorkspaceService>(shell_actuator);
+    theme_service = std::make_shared<ThemeService>(shell_actuator);
+    sync_service = std::make_shared<SyncService>(shell_actuator);
+
+    registerController(std::make_shared<ThemeController>(theme_service));
+    registerController(std::make_shared<WorkspaceController>(workspace_service));
+    registerController(std::make_shared<SyncController>(sync_service));
+
+    hypr_event_manager = std::make_unique<HyprEventManager>(workspace_service);
 
     if (!dev_mode)
     {
         initDesktopEnvironment();
     }
+}
+
+void DesktopManager::registerController(const std::shared_ptr<IController>& controller)
+{
+    controllers[controller->getKeyword()] = controller;
 }
 
 void DesktopManager::initDesktopEnvironment()
@@ -64,7 +77,7 @@ void DesktopManager::run()
         }
         server.closeClient(client);
 
-        hypr_event_manager.poll();
+        hypr_event_manager->poll();
     }
 }
 

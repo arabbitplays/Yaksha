@@ -12,5 +12,6 @@ int main(int argc, char* argv[]) {
 
     LoggingConfiguration::configure();
     std::shared_ptr<DesktopManager> app = std::make_shared<DesktopManager>(dev_mode);
+    app->initApp();
     app->run();
 }

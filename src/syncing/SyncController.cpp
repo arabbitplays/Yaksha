@@ -2,11 +2,10 @@
 #include "../../include/syncing/util/GitSyncResultFormatter.hpp"
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
-SyncController::SyncController(const ShellActuatorHandle& shell_actuator)
-{
-    sync_service = std::make_shared<SyncService>(shell_actuator);
-}
+SyncController::SyncController(std::shared_ptr<SyncService> sync_service)
+    : sync_service(std::move(sync_service)) {}
 
 std::string SyncController::getKeyword() const {
     return "sync";
@@ -30,4 +29,3 @@ std::string SyncController::execute(io::CommandHandle &cmd) {
     }
     throw std::runtime_error("Command " + getKeyword() + " " + cmd->args[0] + " does not exist!");
 }
-

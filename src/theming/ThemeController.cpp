@@ -1,15 +1,11 @@
 #include "../../include/theming/ThemeController.hpp"
 #include "io/CommandParser.hpp"
-#include "util/MonitorUtil.hpp"
-#include <filesystem>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
-namespace fs = std::filesystem;
-
-ThemeController::ThemeController(const ShellActuatorHandle& shell_actuator) {
-    theme_service = std::make_shared<ThemeService>(shell_actuator);
-}
+ThemeController::ThemeController(std::shared_ptr<ThemeService> theme_service)
+    : theme_service(std::move(theme_service)) {}
 
 std::string ThemeController::getKeyword() const {
     return "theme";
@@ -24,4 +20,3 @@ std::string ThemeController::execute(io::CommandHandle& cmd) {
     theme_service->setTheme(theme_name);
     return "ok";
 }
-

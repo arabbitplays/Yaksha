@@ -1,7 +1,6 @@
 #ifndef DESKTOP_MANAGER
 #define DESKTOP_MANAGER
 
-#include <concepts>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -12,6 +11,8 @@
 
 #include "HyprEventManager.hpp"
 #include "logging/logger/Logger.hpp"
+#include "syncing/SyncService.hpp"
+#include "theming/ThemeService.hpp"
 #include "workspaces/WorkspaceService.hpp"
 
 class DesktopManager {
@@ -19,26 +20,28 @@ public:
     explicit DesktopManager(bool dev_mode);
     ~DesktopManager() = default;
 
+    void initApp();
     void run();
 private:
-    template<std::derived_from<IController> T>
-    void addController() {
-        std::shared_ptr<IController> controller = std::make_shared<T>(shell_actuator);
-        controllers[controller->getKeyword()] = controller;
-    }
+    void registerController(const std::shared_ptr<IController>& controller);
     void initDesktopEnvironment();
 
     Logging::LoggerHandle LOGGER = Logging::LogManager::getClassLogger<DesktopManager>();
 
     std::string executeCommand(const std::string& cmd_string) const;
 
-    ShellActuatorHandle shell_actuator = std::make_shared<ShellActuator>();
-    std::shared_ptr<WorkspaceService> workspace_service = std::make_shared<WorkspaceService>(shell_actuator);
-    HyprEventManager hypr_event_manager{workspace_service};
-
+    bool dev_mode;
     std::string socket_path;
+
+    ShellActuatorHandle shell_actuator;
+
+    std::shared_ptr<WorkspaceService> workspace_service;
+    std::shared_ptr<ThemeService> theme_service;
+    std::shared_ptr<SyncService> sync_service;
+
+    std::unique_ptr<HyprEventManager> hypr_event_manager;
+
     std::unordered_map<std::string, std::shared_ptr<IController>> controllers;
 };
 
 #endif // DESKTOP_MANAGER
-
