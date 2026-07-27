@@ -6,4 +6,6 @@ src += files(
   'WaybarBinding.cpp',
   'KittyBinding.cpp',
   'HyprlandBinding.cpp',
+  'SystemBinding.cpp',
+  'GitBinding.cpp',
 )

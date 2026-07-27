@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
         dev_mode = true;
     }
 
-    LoggingConfiguration::configure();
+    LoggingConfiguration::configure(dev_mode);
     std::shared_ptr<DesktopManager> app = std::make_shared<DesktopManager>(dev_mode);
     app->initApp();
     app->run();
