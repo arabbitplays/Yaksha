@@ -11,7 +11,7 @@ WorkspaceService::WorkspaceService(HyprlandBindingHandle hyprland_binding)
     monitor_names = MonitorUtil::getMonitorNamesForCurrSystem();
 }
 
-void WorkspaceService::initMonitor(std::string monitor_name) const {
+void WorkspaceService::initMonitor(const std::string& monitor_name) const {
     int32_t physical_id = -1;
     for (uint32_t i = 0; i < monitor_names.size(); i++)
     {
@@ -28,6 +28,7 @@ void WorkspaceService::initMonitor(std::string monitor_name) const {
 
     const uint32_t hyprland_id = toHyprlandId({static_cast<uint32_t>(physical_id), 0});
     hyprland_binding->focusAndOpenWorkspaces({{monitor_name, hyprland_id}});
+    logger->info("Initialized monitor " + monitor_name + " to id " + std::to_string(hyprland_id));
 }
 
 void WorkspaceService::initExistingMonitors() const {
@@ -38,7 +39,7 @@ void WorkspaceService::initExistingMonitors() const {
     }
     catch (const std::exception& e)
     {
-        logger->warn(std::string("Failed to query existing monitors: ") + e.what());
+        logger->error(std::string("Failed to query existing monitors: ") + e.what());
         return;
     }
     for (const std::string& name : monitors)
