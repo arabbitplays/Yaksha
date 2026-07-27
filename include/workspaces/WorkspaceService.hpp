@@ -10,7 +10,7 @@ public:
     explicit WorkspaceService(HyprlandBindingHandle hyprland_binding);
     ~WorkspaceService() = default;
 
-    void initMonitor(std::string monitor_name) const;
+    void initMonitor(const std::string& monitor_name) const;
     void initExistingMonitors() const;
     void switchWorkspace(uint32_t target_virtual) const;
     void sendWindow(uint32_t target_virtual) const;
