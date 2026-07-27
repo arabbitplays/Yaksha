@@ -31,8 +31,10 @@ void DesktopManager::initApp()
 {
     shell_actuator = std::make_shared<ShellActuator>();
 
-    workspace_service = std::make_shared<WorkspaceService>(shell_actuator);
-    theme_service = std::make_shared<ThemeService>(shell_actuator);
+    hyprland_binding = std::make_shared<HyprlandBinding>(shell_actuator);
+
+    workspace_service = std::make_shared<WorkspaceService>(hyprland_binding);
+    theme_service = std::make_shared<ThemeService>(shell_actuator, hyprland_binding);
     sync_service = std::make_shared<SyncService>(shell_actuator);
 
     registerController(std::make_shared<ThemeController>(theme_service));

@@ -1,16 +1,17 @@
 #include "../../include/workspaces/WorkspaceService.hpp"
 
-#include "core/util/StringUtil.h"
+#include <utility>
+
 #include "util/MonitorUtil.hpp"
 #include "workspaces/model/WindowMovement.hpp"
 
-WorkspaceService::WorkspaceService(const ShellActuatorHandle& shell_actuator) : shell_actuator(shell_actuator)
+WorkspaceService::WorkspaceService(HyprlandBindingHandle hyprland_binding)
+    : hyprland_binding(std::move(hyprland_binding))
 {
     monitor_names = MonitorUtil::getMonitorNamesForCurrSystem();
 }
 
 void WorkspaceService::initMonitor(std::string monitor_name) const {
-    std::string batch = "hyprctl --batch \"";
     int32_t physical_id = -1;
     for (uint32_t i = 0; i < monitor_names.size(); i++)
     {
@@ -24,21 +25,23 @@ void WorkspaceService::initMonitor(std::string monitor_name) const {
         logger->warn("Can not initialize monitor: Unknow monitor name " + monitor_name);
         return;
     }
-    batch += "dispatch focusmonitor " + monitor_name + " ; ";
-    batch += "dispatch workspace " + std::to_string(toHyprlandId({static_cast<uint32_t>(physical_id), 0}));
-    batch += "\"";
 
-    shell_actuator->executeShellCommand(batch);
+    const uint32_t hyprland_id = toHyprlandId({static_cast<uint32_t>(physical_id), 0});
+    hyprland_binding->focusAndOpenWorkspaces({{monitor_name, hyprland_id}});
 }
 
 void WorkspaceService::initExistingMonitors() const {
-    ShellResult result = shell_actuator->executeShellCommand("hyprctl monitors -j | jq -r '.[].name'");
-    if (result.status != 0)
+    std::vector<std::string> monitors;
+    try
     {
-        logger->warn("Failed to query existing monitors: " + result.response);
+        monitors = hyprland_binding->getMonitorNames();
+    }
+    catch (const std::exception& e)
+    {
+        logger->warn(std::string("Failed to query existing monitors: ") + e.what());
         return;
     }
-    for (const std::string& name : StringUtil::split(result.response, '\n'))
+    for (const std::string& name : monitors)
     {
         initMonitor(name);
     }
@@ -47,21 +50,19 @@ void WorkspaceService::initExistingMonitors() const {
 void WorkspaceService::switchWorkspace(uint32_t target_virtual) const {
     Workspace active_workspace = getActiveWorkspace();
 
-    std::string batch = "hyprctl --batch \"";
+    std::vector<HyprlandBinding::MonitorWorkspace> focuses;
+    focuses.reserve(monitor_names.size());
     for (uint32_t i = 0; i < monitor_names.size(); i++) {
-        batch += "dispatch focusmonitor " + monitor_names.at(i) + " ; ";
-        batch += "dispatch workspace " + std::to_string(toHyprlandId({i, target_virtual})) + " ; ";
+        focuses.push_back({monitor_names.at(i), toHyprlandId({i, target_virtual})});
     }
-    batch += "dispatch focusmonitor " + monitor_names[active_workspace.physical_id] + "\"";
-
-    shell_actuator->executeShellCommand(batch);
+    hyprland_binding->focusAndOpenWorkspaces(focuses, monitor_names[active_workspace.physical_id]);
 }
 
 void WorkspaceService::sendWindow(const uint32_t target_virtual) const {
-    std::string active_window = getActiveWindowId();
+    std::string active_window = hyprland_binding->getActiveWindowAddress();
     Workspace workspace = getActiveWorkspace();
     uint32_t hyprland_id = toHyprlandId({workspace.physical_id, target_virtual});
-    shell_actuator->executeShellCommand("hyprctl dispatch movetoworkspacesilent " + std::to_string(hyprland_id) + ",address:" + active_window);
+    hyprland_binding->moveWindowToWorkspace(hyprland_id, active_window, /*silent=*/true);
 }
 
 void WorkspaceService::moveWindow(WindowMovement movement) const {
@@ -78,7 +79,7 @@ void WorkspaceService::moveWindow(WindowMovement movement) const {
             throw std::invalid_argument("Unknown movement " + std::to_string(movement));
     }
 
-    std::string active_window = getActiveWindowId();
+    std::string active_window = hyprland_binding->getActiveWindowAddress();
     Workspace workspace = getActiveWorkspace();
 
     int32_t monitor_count = static_cast<int32_t>(monitor_names.size());
@@ -87,17 +88,11 @@ void WorkspaceService::moveWindow(WindowMovement movement) const {
     physical_id = physical_id >= monitor_count ? 0 : physical_id;
 
     uint32_t hyprland_id = toHyprlandId({static_cast<uint32_t>(physical_id), workspace.virtual_id});
-    shell_actuator->executeShellCommand("hyprctl dispatch movetoworkspace " + std::to_string(hyprland_id) + ",address:" + active_window);
+    hyprland_binding->moveWindowToWorkspace(hyprland_id, active_window, /*silent=*/false);
 }
 
 Workspace WorkspaceService::getActiveWorkspace() const {
-    std::string active_workspace_string = shell_actuator->executeShellCommand("hyprctl activeworkspace -j | jq -r '.id'").response;
-    uint32_t hyprland_id = std::stoi(active_workspace_string);
-    return fromHyprlandId(hyprland_id);
-}
-
-std::string WorkspaceService::getActiveWindowId() const {
-    return shell_actuator->executeShellCommand("hyprctl activewindow -j | jq -r '.address'").response;
+    return fromHyprlandId(hyprland_binding->getActiveWorkspaceId());
 }
 
 Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) const {

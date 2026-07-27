@@ -4,13 +4,14 @@
 #include <unordered_map>
 #include <vector>
 
+#include "bindings/HyprlandBinding.hpp"
 #include "core/ShellActuator.hpp"
 #include "model/Theme.hpp"
 
 class ThemeService
 {
 public:
-    explicit ThemeService(const ShellActuatorHandle& shell_actuator);
+    ThemeService(const ShellActuatorHandle& shell_actuator, HyprlandBindingHandle hyprland_binding);
     ~ThemeService() = default;
 
     void setTheme(const std::string& theme_name);
@@ -34,6 +35,7 @@ private:
     static constexpr char* SWWW_OPTIONS = "--transition-type outer --transition-pos top-right --resize crop --transition-bezier=0.1,0.2,0.4,1.0 --transition-fps=60";
 
     ShellActuatorHandle shell_actuator;
+    HyprlandBindingHandle hyprland_binding;
 
     std::vector<std::string> monitor_names;
     std::unordered_map<std::string, Theme> themes;

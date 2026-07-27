@@ -1,10 +1,13 @@
 #include "../../include/theming/ThemeService.hpp"
 
+#include <utility>
+
 #include "theming/ThemeController.hpp"
 #include "util/FileUtil.hpp"
 #include "util/MonitorUtil.hpp"
 
-ThemeService::ThemeService(const ShellActuatorHandle& shell_actuator) : shell_actuator(shell_actuator)
+ThemeService::ThemeService(const ShellActuatorHandle& shell_actuator, HyprlandBindingHandle hyprland_binding)
+    : shell_actuator(shell_actuator), hyprland_binding(std::move(hyprland_binding))
 {
     monitor_names = MonitorUtil::getMonitorNamesForCurrSystem();
 
@@ -65,7 +68,7 @@ void ThemeService::setHyprTheme(const std::string& name) const
     std::string src = std::string(HYPR_THEME_DIR) + "/" + name;
     std::string dst = std::string(HYPR_THEME_FILE);
     FileUtil::copyFile(shell_actuator, src, dst);
-    shell_actuator->executeShellCommand("hyprctl reload");
+    hyprland_binding->reload();
 }
 
 void ThemeService::setWaybarTheme(const std::string& name) const

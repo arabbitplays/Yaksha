@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "../bindings/HyprlandBinding.hpp"
 #include "../core/IController.hpp"
 #include "../core/ShellActuator.hpp"
 #include <logging/LogManager.hpp>
@@ -34,6 +35,8 @@ private:
     std::string socket_path;
 
     ShellActuatorHandle shell_actuator;
+
+    HyprlandBindingHandle hyprland_binding;
 
     std::shared_ptr<WorkspaceService> workspace_service;
     std::shared_ptr<ThemeService> theme_service;
