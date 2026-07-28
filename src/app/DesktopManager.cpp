@@ -30,6 +30,7 @@ DesktopManager::DesktopManager(bool dev_mode) : dev_mode(dev_mode)
 void DesktopManager::initApp()
 {
     shell_actuator = std::make_shared<ShellActuator>();
+    monitor_state = std::make_shared<MonitorState>();
 
     hyprland_binding = std::make_shared<HyprlandBinding>(shell_actuator);
     swww_binding = std::make_shared<SwwwBinding>(shell_actuator);
@@ -38,7 +39,8 @@ void DesktopManager::initApp()
     git_binding = std::make_shared<GitBinding>(shell_actuator);
     system_binding = std::make_shared<SystemBinding>(shell_actuator);
 
-    workspace_service = std::make_shared<WorkspaceService>(hyprland_binding);
+    workspace_service = std::make_shared<WorkspaceService>(monitor_state, hyprland_binding);
+    monitor_service = std::make_shared<MonitorService>(monitor_state, workspace_service, hyprland_binding);
     theme_service = std::make_shared<ThemeService>(
         hyprland_binding, swww_binding, kitty_binding, waybar_binding, system_binding);
     sync_service = std::make_shared<SyncService>(git_binding, system_binding);
@@ -47,12 +49,9 @@ void DesktopManager::initApp()
     registerController(std::make_shared<WorkspaceController>(workspace_service));
     registerController(std::make_shared<SyncController>(sync_service));
 
-    hypr_event_manager = std::make_unique<HyprEventManager>(workspace_service);
+    hypr_event_manager = std::make_unique<HyprEventManager>(monitor_service);
 
-    if (!dev_mode)
-    {
-        initDesktopEnvironment();
-    }
+    initDesktopEnvironment();
 }
 
 void DesktopManager::registerController(const std::shared_ptr<IController>& controller)
@@ -63,10 +62,16 @@ void DesktopManager::registerController(const std::shared_ptr<IController>& cont
 void DesktopManager::initDesktopEnvironment()
 {
     LOGGER->info("Initialising Desktop Environment");
-    Startup startup(kitty_binding, workspace_service, [this](const std::string& cmd) { return executeCommand(cmd); });
-    startup.setupTheme();
-    startup.setupWorkspaces();
-    startup.runDashboardTerminal();
+    try
+    {
+        Startup startup(kitty_binding, monitor_service, [this](const std::string& cmd) { return executeCommand(cmd); });
+        startup.setupTheme();
+        startup.setupWorkspaces();
+        startup.runDashboardTerminal();
+    } catch (std::exception& e)
+    {
+        LOGGER->error("Error during startup: " + std::string(e.what()));
+    }
     LOGGER->info("Finished initialising Desktop Environment");
 }
 
@@ -104,7 +109,8 @@ std::string DesktopManager::executeCommand(const std::string& cmd_string) const
         try
         {
             return controllers.at(cmd->keyword)->execute(cmd);
-        } catch (std::exception& e)
+        }
+        catch (std::exception& e)
         {
             LOGGER->error(e.what());
             return "Error: " + std::string(e.what());
