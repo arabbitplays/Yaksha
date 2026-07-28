@@ -2,9 +2,10 @@
 
 #include "core/sockets/SocketException.hpp"
 #include "core/util/StringUtil.h"
+#include "workspaces/MonitorService.hpp"
 #include "workspaces/WorkspaceService.hpp"
 
-HyprEventManager::HyprEventManager(const std::shared_ptr<WorkspaceService>& workspace_service) : socket_listener(getHyprSocketPath()), workspace_service(workspace_service)
+HyprEventManager::HyprEventManager(const std::shared_ptr<MonitorService>& monitor_service) : socket_listener(getHyprSocketPath()), monitor_service(monitor_service)
 {
     socket_listener.listen();
 }
@@ -50,7 +51,16 @@ void HyprEventManager::handleMessage(const HyprMessage& hypr_message) const
         {
             throw SocketException("monitoradded event without monitor name argument");
         }
-        workspace_service->initMonitor(hypr_message.arguments.at(0));
+        monitor_service->addMonitor(hypr_message.arguments[0]);
+    }
+
+    if (hypr_message.message_type == "monitorremoved")
+    {
+        if (hypr_message.arguments.empty())
+        {
+            throw SocketException("monitorremoved event without monitor name argument");
+        }
+        monitor_service->removeMonitor(hypr_message.arguments[0]);
     }
 
     std::string log_message = hypr_message.message_type;

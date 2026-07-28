@@ -40,6 +40,7 @@ private:
     std::string socket_path;
 
     ShellActuatorHandle shell_actuator;
+    MonitorStateHandle monitor_state;
 
     HyprlandBindingHandle hyprland_binding;
     SwwwBindingHandle swww_binding;
@@ -49,6 +50,7 @@ private:
     SystemBindingHandle system_binding;
 
     std::shared_ptr<WorkspaceService> workspace_service;
+    std::shared_ptr<MonitorService> monitor_service;
     std::shared_ptr<ThemeService> theme_service;
     std::shared_ptr<SyncService> sync_service;
 

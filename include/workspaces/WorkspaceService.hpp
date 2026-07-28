@@ -1,17 +1,18 @@
 #ifndef DESKTOP_MANAGER_WORKSPACESERVICE_HPP
 #define DESKTOP_MANAGER_WORKSPACESERVICE_HPP
 #include "bindings/HyprlandBinding.hpp"
+#include "model/Monitor.hpp"
+#include "model/MonitorState.hpp"
 #include "model/WindowMovement.hpp"
 #include "model/Workspace.hpp"
 
 class WorkspaceService
 {
 public:
-    explicit WorkspaceService(HyprlandBindingHandle hyprland_binding);
+    explicit WorkspaceService(const MonitorStateHandle& monitor_state, HyprlandBindingHandle hyprland_binding);
     ~WorkspaceService() = default;
 
-    void initMonitor(const std::string& monitor_name) const;
-    void initExistingMonitors() const;
+    void initWorkspaceForMonitor(const MonitorHandle& monitor) const;
     void switchWorkspace(uint32_t target_virtual) const;
     void sendWindow(uint32_t target_virtual) const;
     void moveWindow(WindowMovement movement) const;
@@ -22,8 +23,8 @@ private:
 
     Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<WorkspaceService>();
 
+    MonitorStateHandle monitor_state;
     HyprlandBindingHandle hyprland_binding;
-    std::vector<std::string> monitor_names;
 };
 
 

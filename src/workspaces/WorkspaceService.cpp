@@ -2,109 +2,84 @@
 
 #include <utility>
 
-#include "util/MonitorUtil.hpp"
+#include "workspaces/model/Monitor.hpp"
 #include "workspaces/model/WindowMovement.hpp"
 
-WorkspaceService::WorkspaceService(HyprlandBindingHandle hyprland_binding)
-    : hyprland_binding(std::move(hyprland_binding))
+WorkspaceService::WorkspaceService(const MonitorStateHandle& monitor_state, HyprlandBindingHandle hyprland_binding)
+    : monitor_state(monitor_state), hyprland_binding(std::move(hyprland_binding))
 {
-    monitor_names = MonitorUtil::getMonitorNamesForCurrSystem();
 }
 
-void WorkspaceService::initMonitor(const std::string& monitor_name) const {
-    int32_t physical_id = -1;
-    for (uint32_t i = 0; i < monitor_names.size(); i++)
-    {
-        if (monitor_names.at(i) == monitor_name)
-        {
-            physical_id = i;
-        }
-    }
-    if (physical_id < 0)
-    {
-        logger->warn("Can not initialize monitor: Unknow monitor name " + monitor_name);
-        return;
-    }
-
-    const uint32_t hyprland_id = toHyprlandId({static_cast<uint32_t>(physical_id), 0});
-    hyprland_binding->focusAndOpenWorkspaces({{monitor_name, hyprland_id}});
-    logger->info("Initialized monitor " + monitor_name + " to id " + std::to_string(hyprland_id));
+void WorkspaceService::initWorkspaceForMonitor(const MonitorHandle& monitor) const
+{
+    const uint32_t hyprland_id = toHyprlandId({monitor->physical_id, monitor_state->current_virtual_id});
+    hyprland_binding->focusAndOpenWorkspaces({{monitor->name, hyprland_id}});
+    logger->info("Initialized monitor " + monitor->name + " to id " + std::to_string(hyprland_id));
 }
 
-void WorkspaceService::initExistingMonitors() const {
-    std::vector<std::string> monitors;
-    try
-    {
-        monitors = hyprland_binding->getMonitorNames();
-    }
-    catch (const std::exception& e)
-    {
-        logger->error(std::string("Failed to query existing monitors: ") + e.what());
-        return;
-    }
-    for (const std::string& name : monitors)
-    {
-        initMonitor(name);
-    }
-}
-
-void WorkspaceService::switchWorkspace(uint32_t target_virtual) const {
+void WorkspaceService::switchWorkspace(uint32_t target_virtual) const
+{
     Workspace active_workspace = getActiveWorkspace();
+    std::vector<MonitorHandle> connected_monitors = monitor_state->getConnectedMonitors();
 
     std::vector<HyprlandBinding::MonitorWorkspace> focuses;
-    focuses.reserve(monitor_names.size());
-    for (uint32_t i = 0; i < monitor_names.size(); i++) {
-        focuses.push_back({monitor_names.at(i), toHyprlandId({i, target_virtual})});
+    focuses.reserve(connected_monitors.size());
+    for (const auto& monitor : connected_monitors)
+    {
+        focuses.push_back({monitor->name, toHyprlandId({monitor->physical_id, target_virtual})});
     }
-    hyprland_binding->focusAndOpenWorkspaces(focuses, monitor_names[active_workspace.physical_id]);
+    hyprland_binding->
+        focusAndOpenWorkspaces(focuses, monitor_state->getMonitorById(active_workspace.physical_id)->name);
+    monitor_state->current_virtual_id = target_virtual;
 }
 
-void WorkspaceService::sendWindow(const uint32_t target_virtual) const {
+void WorkspaceService::sendWindow(const uint32_t target_virtual) const
+{
     std::string active_window = hyprland_binding->getActiveWindowAddress();
     Workspace workspace = getActiveWorkspace();
     uint32_t hyprland_id = toHyprlandId({workspace.physical_id, target_virtual});
     hyprland_binding->moveWindowToWorkspace(hyprland_id, active_window, /*silent=*/true);
 }
 
-void WorkspaceService::moveWindow(WindowMovement movement) const {
-    int32_t physical_delta = 0;
-    switch (movement)
+void WorkspaceService::moveWindow(const WindowMovement movement) const
+{
+    std::string active_window = hyprland_binding->getActiveWindowAddress();
+    Workspace active_workspace = getActiveWorkspace();
+    MonitorHandle active_monitor = monitor_state->getMonitorById(active_workspace.physical_id);
+    std::optional<MonitorHandle> adjacent_monitor = monitor_state->getAdjacentMonitor(active_monitor, movement);
+    if (!adjacent_monitor.has_value())
     {
-        case WindowMovement::LEFT:
-            physical_delta = -1;
-            break;
-        case WindowMovement::RIGHT:
-            physical_delta = 1;
-            break;
-    default:
-            throw std::invalid_argument("Unknown movement " + std::to_string(movement));
+        logger->debug("No window to move to found from monitor " + active_monitor->name);
+        return;
     }
 
-    std::string active_window = hyprland_binding->getActiveWindowAddress();
-    Workspace workspace = getActiveWorkspace();
+    if (active_workspace.virtual_id != monitor_state->current_virtual_id)
+    {
+        logger->warn(std::format("Virtual id of active workspace {} does not match virtual id of the monitor state {}",
+                                 active_workspace.virtual_id, monitor_state->current_virtual_id));
+    }
 
-    int32_t monitor_count = static_cast<int32_t>(monitor_names.size());
-    int32_t physical_id = static_cast<int32_t>(workspace.physical_id) + physical_delta;
-    physical_id = physical_id < 0 ? monitor_count - 1 : physical_id;
-    physical_id = physical_id >= monitor_count ? 0 : physical_id;
-
-    uint32_t hyprland_id = toHyprlandId({static_cast<uint32_t>(physical_id), workspace.virtual_id});
+    const uint32_t hyprland_id = toHyprlandId(
+        {adjacent_monitor.value()->physical_id, monitor_state->current_virtual_id});
     hyprland_binding->moveWindowToWorkspace(hyprland_id, active_window, /*silent=*/false);
 }
 
-Workspace WorkspaceService::getActiveWorkspace() const {
+Workspace WorkspaceService::getActiveWorkspace() const
+{
     return fromHyprlandId(hyprland_binding->getActiveWorkspaceId());
 }
 
-Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) const {
-    Workspace workspace = {hyprland_id / 10 - 1, hyprland_id % 10 - 1};
-    if(workspace.physical_id >= monitor_names.size())
+Workspace WorkspaceService::fromHyprlandId(uint32_t hyprland_id) const
+{
+    if (hyprland_id < 11)
     {
         throw std::runtime_error("Invalid hyprland workspace id " + std::to_string(hyprland_id));
     }
+    Workspace workspace = {hyprland_id / 10 - 1, hyprland_id % 10 - 1};
     return workspace;
 }
 
-uint32_t WorkspaceService::toHyprlandId(const Workspace& workspace) {
+uint32_t WorkspaceService::toHyprlandId(const Workspace& workspace)
+{
     return (workspace.physical_id + 1) * 10 + (workspace.virtual_id + 1);
 }

@@ -3,5 +3,6 @@
 
 src += files(
   'WorkspaceService.cpp',
+  'MonitorService.cpp',
   'WorkspaceController.cpp',
 )
