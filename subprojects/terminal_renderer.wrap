@@ -1,0 +1,5 @@
+[wrap-git]
+directory = terminal_renderer
+url = https://github.com/arabbitplays/Terminal-Renderer-Library.git
+revision = main
+depth = 1

@@ -8,6 +8,7 @@ subdir('app')
 subdir('startup')
 subdir('workspaces')
 subdir('bindings')
+subdir('dashboard')
 
 src += files(
   'main.cpp',

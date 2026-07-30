@@ -6,6 +6,7 @@
 #include <string>
 
 #include "bindings/KittyBinding.hpp"
+#include "dashboard/Dashboard.hpp"
 #include "workspaces/MonitorService.hpp"
 #include "workspaces/WorkspaceService.hpp"
 
@@ -26,6 +27,8 @@ private:
     KittyBindingHandle kitty_binding;
     std::shared_ptr<MonitorService> monitor_service;
     CommandExecutor execute;
+
+    std::shared_ptr<Dashboard> dashboard;
 };
 
 #endif // STARTUP

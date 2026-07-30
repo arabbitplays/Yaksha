@@ -11,7 +11,8 @@ public:
     ~KittyBinding() = default;
 
     void reload() const;
-    void launchDashboard() const;
+    void launchPipedTerminal(const std::string& fifo_name,
+                             const std::string& tty_report_fifo) const;
 
 private:
     ShellActuatorHandle shell_actuator;

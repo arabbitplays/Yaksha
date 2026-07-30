@@ -11,6 +11,7 @@ incdirs = [
 ]
 
 logging_dep = dependency('logging_lib', fallback: ['logging', 'logging_dep'])
+renderer_dep = dependency('terminal_renderer_lib', fallback: ['terminal_renderer', 'renderer_dep'])
 
 project_root = meson.current_source_dir()
 
@@ -24,7 +25,8 @@ exe = executable(
     'DesktopManager',
     sources: src,
     dependencies: [
-        logging_dep
+        logging_dep,
+        renderer_dep
     ],
     include_directories: incdirs,
     install : true,

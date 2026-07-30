@@ -1,8 +1,9 @@
 #include "include/startup/Startup.hpp"
+
 #include <utility>
 
+#include "dashboard/Dashboard.hpp"
 #include "workspaces/MonitorService.hpp"
-#include "workspaces/WorkspaceService.hpp"
 
 Startup::Startup(KittyBindingHandle kitty_binding,
                  std::shared_ptr<MonitorService> monitor_service,
@@ -21,5 +22,6 @@ void Startup::setupWorkspaces()
 }
 
 void Startup::runDashboardTerminal() {
-    kitty_binding->launchDashboard();
+    dashboard = std::make_shared<Dashboard>(kitty_binding);
+    dashboard->launch();
 }

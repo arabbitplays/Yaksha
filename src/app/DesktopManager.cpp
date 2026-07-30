@@ -50,6 +50,7 @@ void DesktopManager::initApp()
     registerController(std::make_shared<SyncController>(sync_service));
 
     hypr_event_manager = std::make_unique<HyprEventManager>(monitor_service);
+    startup = std::make_shared<Startup>(kitty_binding, monitor_service, [this](const std::string& cmd) { return executeCommand(cmd); });
 
     initDesktopEnvironment();
 }
@@ -64,10 +65,9 @@ void DesktopManager::initDesktopEnvironment()
     LOGGER->info("Initialising Desktop Environment");
     try
     {
-        Startup startup(kitty_binding, monitor_service, [this](const std::string& cmd) { return executeCommand(cmd); });
-        startup.setupTheme();
-        startup.setupWorkspaces();
-        startup.runDashboardTerminal();
+        startup->setupTheme();
+        startup->setupWorkspaces();
+        startup->runDashboardTerminal();
     } catch (std::exception& e)
     {
         LOGGER->error("Error during startup: " + std::string(e.what()));
