@@ -59,6 +59,7 @@ private:
 
     std::unordered_map<std::string, std::shared_ptr<IController>> controllers;
 
+    std::shared_ptr<Dashboard> dashboard;
     std::shared_ptr<Startup> startup;
 };
 

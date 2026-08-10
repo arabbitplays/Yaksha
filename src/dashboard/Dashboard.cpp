@@ -13,13 +13,21 @@
 #include <unistd.h>
 
 #include "dashboard/widgets/BannerWidget.hpp"
+#include "syncing/SyncService.hpp"
 #include "terminal_renderer/builder/RendererBuilder.hpp"
 #include "terminal_renderer/builder/SceneBuilder.hpp"
 #include "terminal_renderer/builder/SceneExample.hpp"
 #include "terminal_renderer/nodes/layouts/LayoutNode.hpp"
 
-Dashboard::Dashboard(const std::shared_ptr<KittyBinding>& kitty_binding) : kitty_binding(kitty_binding)
+Dashboard::Dashboard(const std::shared_ptr<SyncService> sync_service, const std::shared_ptr<KittyBinding>& kitty_binding) : kitty_binding(kitty_binding)
 {
+    createWidgets(sync_service);
+}
+
+void Dashboard::createWidgets(const std::shared_ptr<SyncService>& sync_service)
+{
+    banner_widget = std::make_shared<BannerWidget>();
+    sync_widget = std::make_shared<SyncWidget>(sync_service);
 }
 
 Dashboard::~Dashboard()
@@ -58,8 +66,10 @@ void Dashboard::launch()
         throw std::runtime_error("Peer terminal did not report a tty path");
     }
 
-    auto banner = std::make_shared<BannerWidget>();
-    auto scene = SceneBuilder::scene().addChild(banner).build();
+    auto scene = SceneBuilder::scene()
+        .addChild(SceneBuilder::horizontalLayout()
+        .addChild(banner_widget)
+        .addChild(sync_widget).build()).build();
     terminal_renderer = RendererBuilder()
                         .transport(std::make_shared<PipeTransport>(TERMINAL_PIPE_NAME, tty_path))
                         .scene(scene)
@@ -71,9 +81,10 @@ void Dashboard::launch()
 
 void Dashboard::runDashboard()
 {
+    terminal_renderer->start();
     while (running.load(std::memory_order_relaxed))
     {
         terminal_renderer->render();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }

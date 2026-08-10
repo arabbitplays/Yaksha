@@ -17,6 +17,7 @@ public:
     void addGitRepositoryToSync(const std::filesystem::path& path);
     GitSyncResult syncConfigFiles();
     std::vector<GitSyncResult> syncGitRepositories();
+    std::vector<std::string> getSyncedRepositoryNames();
 
 private:
     GitSyncResult syncGitRepository(const std::string& name, const std::string& git_prefix, std::vector<std::string> add_paths);
@@ -30,6 +31,8 @@ private:
     SystemBindingHandle system_binding;
 
     std::vector<GitRepositoryHandle> syncedRepositories{};
+
+    static constexpr std::string CONFIG_REPO_NAME = "dotfiles";
 };
 
 

@@ -50,7 +50,9 @@ void DesktopManager::initApp()
     registerController(std::make_shared<SyncController>(sync_service));
 
     hypr_event_manager = std::make_unique<HyprEventManager>(monitor_service);
-    startup = std::make_shared<Startup>(kitty_binding, monitor_service, [this](const std::string& cmd) { return executeCommand(cmd); });
+
+    dashboard = std::make_shared<Dashboard>(sync_service, kitty_binding);
+    startup = std::make_shared<Startup>(dashboard, monitor_service, [this](const std::string& cmd) { return executeCommand(cmd); });
 
     initDesktopEnvironment();
 }

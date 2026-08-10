@@ -10,8 +10,6 @@ public:
     BannerWidget();
     ~BannerWidget() = default;
 
-    void onUpdate() override;
-
 private:
     std::string banner = R"(
  .-.          .-         .'|                  .'|
