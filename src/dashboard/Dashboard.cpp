@@ -28,6 +28,7 @@ void Dashboard::createWidgets(const std::shared_ptr<SyncService>& sync_service)
 {
     banner_widget = std::make_shared<BannerWidget>();
     sync_widget = std::make_shared<SyncWidget>(sync_service);
+    logging_widget = std::make_shared<LoggingWidget>();
 }
 
 Dashboard::~Dashboard()
@@ -68,8 +69,10 @@ void Dashboard::launch()
 
     auto scene = SceneBuilder::scene()
         .addChild(SceneBuilder::horizontalLayout()
-        .addChild(banner_widget)
-        .addChild(sync_widget).build()).build();
+            .addChild(banner_widget)
+            .addChild(sync_widget).build())
+        .addChild(logging_widget)
+        .build();
     terminal_renderer = RendererBuilder()
                         .transport(std::make_shared<PipeTransport>(TERMINAL_PIPE_NAME, tty_path))
                         .scene(scene)

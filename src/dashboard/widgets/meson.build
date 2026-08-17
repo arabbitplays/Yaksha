@@ -4,4 +4,5 @@
 src += files(
   'SyncWidget.cpp',
   'BannerWidget.cpp',
+  'LoggingWidget.cpp',
 )

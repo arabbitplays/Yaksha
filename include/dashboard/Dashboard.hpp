@@ -7,6 +7,7 @@
 
 #include "syncing/SyncService.hpp"
 #include "widgets/BannerWidget.hpp"
+#include "widgets/LoggingWidget.hpp"
 #include "widgets/SyncWidget.hpp"
 
 class Dashboard
@@ -26,6 +27,7 @@ private:
 
     std::shared_ptr<BannerWidget> banner_widget;
     std::shared_ptr<SyncWidget> sync_widget;
+    std::shared_ptr<LoggingWidget> logging_widget;
 
     std::atomic<bool> running;
     std::thread dashboard_thread;
