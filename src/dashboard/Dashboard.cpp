@@ -84,10 +84,18 @@ void Dashboard::launch()
 
 void Dashboard::runDashboard()
 {
-    terminal_renderer->start();
-    while (running.load(std::memory_order_relaxed))
+    try
     {
-        terminal_renderer->render();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        terminal_renderer->start();
+        while (running.load(std::memory_order_relaxed))
+        {
+            terminal_renderer->render();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
+    catch (const std::exception& e)
+    {
+        logger->warn(std::string("Dashboard rendering loop stopped due to exception: ") + e.what());
+        running = false;
     }
 }

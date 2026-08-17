@@ -5,6 +5,8 @@
 #include "bindings/KittyBinding.hpp"
 #include <terminal_renderer/TerminalRenderer.hpp>
 
+#include <logging/LogManager.hpp>
+
 #include "syncing/SyncService.hpp"
 #include "widgets/BannerWidget.hpp"
 #include "widgets/LoggingWidget.hpp"
@@ -31,6 +33,8 @@ private:
 
     std::atomic<bool> running;
     std::thread dashboard_thread;
+
+    Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<Dashboard>();
 
     const std::string TERMINAL_PIPE_NAME = "desktop_manager_dashboard_pipe";
 };
