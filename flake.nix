@@ -48,7 +48,7 @@
       let
         pkgs = import nixpkgs { inherit system; };
       in
-      {
+      rec {
         desktop-manager = pkgs.stdenv.mkDerivation {
           pname = "DesktopManager";
           version = "1.0.0";
@@ -69,10 +69,9 @@
             cp -r --no-preserve=mode,ownership ${terminal-renderer-src} subprojects/terminal_renderer
           '';
         };
+
+        default = desktop-manager;
       }
     );
-
-    # Default package for `nix run .`
-    defaultPackage = self.packages.${builtins.currentSystem}.desktop-manager;
   };
 }

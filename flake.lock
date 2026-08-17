@@ -42,11 +42,11 @@
     "terminal-renderer-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1786986476,
-        "narHash": "sha256-AhsCXMsJ9dHDcCbqDc8eftMz98I1vwbhm5YXis19Ljg=",
+        "lastModified": 1786992652,
+        "narHash": "sha256-1Wt/ZQVuYOj2KBudx7Y4KTYR0h16wL60A6AZgHMjiQA=",
         "owner": "arabbitplays",
         "repo": "Terminal-Renderer-Library",
-        "rev": "eee32a85d0d55b706b8ac9785ceea8c926a7685a",
+        "rev": "ff859ef640d18580720c4f90fb275048122b1a9a",
         "type": "github"
       },
       "original": {
