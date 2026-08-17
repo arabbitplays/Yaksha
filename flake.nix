@@ -3,9 +3,17 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    logging-src = {
+      url = "github:arabbitplays/Logging-Library";
+      flake = false;
+    };
+    terminal-renderer-src = {
+      url = "github:arabbitplays/Terminal-Renderer-Library";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs }: let
+  outputs = { self, nixpkgs, logging-src, terminal-renderer-src }: let
     systems = [ "x86_64-linux" "aarch64-linux" ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
   in
@@ -53,6 +61,13 @@
             pkg-config
             python3
           ];
+
+          # Pull the subproject sources from flake inputs and drop them into
+          # subprojects/ so meson finds them locally and skips the wrap fetch.
+          postPatch = ''
+            cp -r --no-preserve=mode,ownership ${logging-src} subprojects/logging
+            cp -r --no-preserve=mode,ownership ${terminal-renderer-src} subprojects/terminal_renderer
+          '';
         };
       }
     );
