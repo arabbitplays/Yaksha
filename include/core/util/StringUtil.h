@@ -1,43 +1,30 @@
 #ifndef YAKSHA_STRINGUTIL_H
 #define YAKSHA_STRINGUTIL_H
+#include <algorithm>
 #include <string>
 #include <vector>
 
 class StringUtil
 {
 public:
-    static std::vector<std::string> split(const std::string& input, const char delimiter)
+    static std::string removeWhitespace(std::string input)
     {
-        std::vector<std::string> result{};
-        std::string curr_sub_str;
-        for (char c : input)
+        std::erase_if(input, [](char ch)
         {
-            if (c == delimiter)
-            {
-                if (curr_sub_str.empty())
-                    continue;
-                result.push_back(curr_sub_str);
-                curr_sub_str.clear();
-            }
-            else
-            {
-                curr_sub_str += c;
-            }
-        }
-        if (!curr_sub_str.empty())
-        {
-            result.push_back(curr_sub_str);
-        }
-        return result;
+            return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+        });
+        return input;
     }
 
-    static std::vector<std::string> split(const std::string& input, const std::string& delimiter)
+    static std::vector<std::string> split(const std::string& input, const std::string& delimiter,
+                                          bool remove_whitespace = false)
     {
         std::vector<std::string> result{};
         if (delimiter.empty())
         {
-            if (!input.empty())
-                result.push_back(input);
+            std::string token = remove_whitespace ? removeWhitespace(input) : input;
+            if (!token.empty())
+                result.push_back(std::move(token));
             return result;
         }
 
@@ -46,13 +33,24 @@ public:
         {
             size_t pos = input.find(delimiter, start);
             size_t end = pos == std::string::npos ? input.size() : pos;
-            if (end > start)
-                result.push_back(input.substr(start, end - start));
+
+            std::string token = input.substr(start, end - start);
+            if (remove_whitespace)
+                token = removeWhitespace(std::move(token));
+            if (!token.empty())
+                result.push_back(std::move(token));
+
             if (pos == std::string::npos)
                 break;
             start = pos + delimiter.size();
         }
         return result;
+    }
+
+    static std::vector<std::string> split(const std::string& input, const char delimiter,
+                                          bool remove_whitespace = false)
+    {
+        return split(input, std::string(1, delimiter), remove_whitespace);
     }
 };
 

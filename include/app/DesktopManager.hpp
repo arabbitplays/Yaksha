@@ -17,6 +17,7 @@
 
 #include "HyprEventManager.hpp"
 #include "logging/logger/Logger.hpp"
+#include "startup/Startup.hpp"
 #include "syncing/SyncService.hpp"
 #include "theming/ThemeService.hpp"
 #include "workspaces/WorkspaceService.hpp"
@@ -57,6 +58,9 @@ private:
     std::unique_ptr<HyprEventManager> hypr_event_manager;
 
     std::unordered_map<std::string, std::shared_ptr<IController>> controllers;
+
+    std::shared_ptr<Dashboard> dashboard;
+    std::shared_ptr<Startup> startup;
 };
 
 #endif // DESKTOP_MANAGER

@@ -7,7 +7,7 @@
 namespace io {
     std::shared_ptr<Command> CommandParser::parseCommand(const std::string& raw) {
         auto cmd = std::make_shared<Command>();
-        std::vector<std::string> parts = StringUtil::split(raw, ' ');
+        std::vector<std::string> parts = StringUtil::split(raw, ' ', true);
         if (parts.empty()) {
             throw std::runtime_error("Empty command");
         }

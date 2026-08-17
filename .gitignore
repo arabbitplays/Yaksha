@@ -1,5 +1,6 @@
 .idea/
-.subprojects/**/
+subprojects/*/
+!subprojects/*.wrap
 
 # Prerequisites
 *.d

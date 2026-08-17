@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "logging-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786984754,
+        "narHash": "sha256-e83CaeqRQrp1iTpHoIC28u3ib1cIOEGQgRD3jnCL2x0=",
+        "owner": "arabbitplays",
+        "repo": "Logging-Library",
+        "rev": "52edf42f20103e9f164eb634f557fe6b8c17fd93",
+        "type": "github"
+      },
+      "original": {
+        "owner": "arabbitplays",
+        "repo": "Logging-Library",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1767480499,
@@ -18,7 +34,25 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "logging-src": "logging-src",
+        "nixpkgs": "nixpkgs",
+        "terminal-renderer-src": "terminal-renderer-src"
+      }
+    },
+    "terminal-renderer-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786992652,
+        "narHash": "sha256-1Wt/ZQVuYOj2KBudx7Y4KTYR0h16wL60A6AZgHMjiQA=",
+        "owner": "arabbitplays",
+        "repo": "Terminal-Renderer-Library",
+        "rev": "ff859ef640d18580720c4f90fb275048122b1a9a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "arabbitplays",
+        "repo": "Terminal-Renderer-Library",
+        "type": "github"
       }
     }
   },

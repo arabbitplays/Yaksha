@@ -6,6 +6,7 @@
 #include <string>
 
 #include "bindings/KittyBinding.hpp"
+#include "dashboard/Dashboard.hpp"
 #include "workspaces/MonitorService.hpp"
 #include "workspaces/WorkspaceService.hpp"
 
@@ -14,7 +15,7 @@ class Startup
 public:
     using CommandExecutor = std::function<std::string(const std::string&)>;
 
-    Startup(KittyBindingHandle kitty_binding, std::shared_ptr<MonitorService> monitor_service,
+    Startup(std::shared_ptr<Dashboard> dashboard, std::shared_ptr<MonitorService> monitor_service,
             CommandExecutor executor);
     ~Startup() = default;
 
@@ -23,9 +24,10 @@ public:
     void runDashboardTerminal();
 
 private:
-    KittyBindingHandle kitty_binding;
     std::shared_ptr<MonitorService> monitor_service;
     CommandExecutor execute;
+
+    std::shared_ptr<Dashboard> dashboard;
 };
 
 #endif // STARTUP

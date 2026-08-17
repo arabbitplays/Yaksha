@@ -51,6 +51,9 @@ void DesktopManager::initApp()
 
     hypr_event_manager = std::make_unique<HyprEventManager>(monitor_service);
 
+    dashboard = std::make_shared<Dashboard>(sync_service, kitty_binding);
+    startup = std::make_shared<Startup>(dashboard, monitor_service, [this](const std::string& cmd) { return executeCommand(cmd); });
+
     initDesktopEnvironment();
 }
 
@@ -64,10 +67,9 @@ void DesktopManager::initDesktopEnvironment()
     LOGGER->info("Initialising Desktop Environment");
     try
     {
-        Startup startup(kitty_binding, monitor_service, [this](const std::string& cmd) { return executeCommand(cmd); });
-        startup.setupTheme();
-        startup.setupWorkspaces();
-        startup.runDashboardTerminal();
+        startup->setupTheme();
+        startup->setupWorkspaces();
+        startup->runDashboardTerminal();
     } catch (std::exception& e)
     {
         LOGGER->error("Error during startup: " + std::string(e.what()));
@@ -96,12 +98,16 @@ void DesktopManager::run()
 
 std::string DesktopManager::executeCommand(const std::string& cmd_string) const
 {
-    LOGGER->info("Received command: " + cmd_string);
+    std::string trimmed = cmd_string;
+    while (!trimmed.empty() && trimmed.back() == '\n')
+        trimmed.pop_back();
+
+    LOGGER->info("Received command: " + trimmed);
 
     try
     {
         io::CommandParser parser;
-        io::CommandHandle cmd = parser.parseCommand(cmd_string);
+        io::CommandHandle cmd = parser.parseCommand(trimmed);
 
         if (!controllers.contains(cmd->keyword))
             return "Error: Controller with keyword " + cmd->keyword + " does not exist";

@@ -47,7 +47,7 @@ GitSyncResult SyncService::syncConfigFiles()
 {
     // Bare-repo pattern: work-tree is $HOME, git-dir is $HOME/.cfg.
     std::string git_prefix = "git --git-dir=" + home() + "/.cfg/ --work-tree=" + home();
-    return syncGitRepository("dotfiles", git_prefix, {
+    return syncGitRepository(CONFIG_REPO_NAME, git_prefix, {
         home() + "/.config/hypr",
         home() + "/.nixos",
     });
@@ -105,4 +105,15 @@ std::string SyncService::home()
         throw std::runtime_error("HOME environment variable is not set");
     }
     return std::string(h);
+}
+
+std::vector<std::string> SyncService::getSyncedRepositoryNames()
+{
+    std::vector<std::string> names{};
+    for (auto repository : syncedRepositories)
+    {
+        names.push_back(repository->name);
+    }
+    names.push_back(CONFIG_REPO_NAME);
+    return names;
 }
