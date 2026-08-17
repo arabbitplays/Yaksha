@@ -98,12 +98,16 @@ void DesktopManager::run()
 
 std::string DesktopManager::executeCommand(const std::string& cmd_string) const
 {
-    LOGGER->info("Received command: " + cmd_string);
+    std::string trimmed = cmd_string;
+    while (!trimmed.empty() && trimmed.back() == '\n')
+        trimmed.pop_back();
+
+    LOGGER->info("Received command: " + trimmed);
 
     try
     {
         io::CommandParser parser;
-        io::CommandHandle cmd = parser.parseCommand(cmd_string);
+        io::CommandHandle cmd = parser.parseCommand(trimmed);
 
         if (!controllers.contains(cmd->keyword))
             return "Error: Controller with keyword " + cmd->keyword + " does not exist";
